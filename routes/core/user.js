@@ -1,6 +1,6 @@
 const userRouter = require("express").Router();
 const authCheck = require("../../middleware/middleware");
-const user = require("../../controller/core/userController");
+const user = require("../../controller/core/user");
 const multer = require("multer");
 
 // Upload Files
@@ -25,12 +25,13 @@ const multerFilter = (req, file, cb) => {
 
 const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 
-userRouter.post("/registration", user.signUp);
-// userRouter.post("/login", userController.login);
-// userRouter.get("/getUserDetails/:id", authCheck.jwtToken, userController.getUserDetails);
-// userRouter.post("/editUserInfo", authCheck.jwtToken, upload.single("file"), userController.editUserInfo);
-// userRouter.post("/adminAddUser", authCheck.jwtToken, upload.single("file"), userController.adminAddUser);
-// userRouter.get("/adminGetUserList", authCheck.jwtToken, userController.adminGetUserList);
-// userRouter.get("/adminDeleteUser/:id", authCheck.jwtToken, userController.adminDeleteUser);
+userRouter.post("/registration/1", user.signUpStep1);
+userRouter.post("/registration/2", user.signUpStep2);
+userRouter.post("/login", user.login);
+// userRouter.get("/getUserDetails/:id", authCheck.jwtToken, user.getUserDetails);
+// userRouter.post("/editUserInfo", authCheck.jwtToken, upload.single("file"), user.editUserInfo);
+// userRouter.post("/adminAddUser", authCheck.jwtToken, upload.single("file"), user.adminAddUser);
+// userRouter.get("/adminGetUserList", authCheck.jwtToken, user.adminGetUserList);
+// userRouter.get("/adminDeleteUser/:id", authCheck.jwtToken, user.adminDeleteUser);
 
 module.exports = userRouter;

@@ -1,4 +1,6 @@
 const User = require("../../models").User;
+const AcademicDetails = require("../../models").AcademicDetails;
+const UserRole = require("../../models").UserRole;
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "6hEVETCGQJ5xmVMA235467uyjhtrety5yrt$tgw54teg#$%##%g#$#$6e9GasasdasdXjeWDEE5AHiaOaXXFcVNiC548=34rgsfdfwer23rwfasdA@#$%gfsdf#%$t%trfsdda";
@@ -8,15 +10,15 @@ const randomColors = require("../../util/functions");
 // const fs = require("fs");
 
 const user_controller = {
-	/*. 1. Create an ApI for SignUp */
-	signUp: async (req, res) => {
+	/*. 1. Create an ApI for SignUp Step 1 */
+	signUpStep1: async (req, res) => {
 		try {
 			let result = await User.findOne({
 				where: { email: req.body.email },
 			});
 			if (result) {
 				return res.send({ code: 409, message: "Email Already Exist.", result: [] });
-			} else {
+			} else if (req.body.password && req.body.email) {
 				let password = req.body.password;
 				req.body.password = bcrypt.hashSync(password);
 				let userSave = await User.create(req.body);
@@ -27,23 +29,65 @@ const user_controller = {
 					return res.send({
 						code: 200,
 						status: true,
-						message: "Hooray! Your registration is complete, and you're officially a part of our community.",
-						data: {
-							id: userResult.id,
-							fullName: userResult.fullName,
-							email: userResult.email,
-							address: userResult.address,
-							mobile: userResult.mobile,
-							status: userResult.status,
-							userRole: userResult.user_role,
-							color: userResult.color,
-							academicsDetailId: userResult.academicsDetailId,
-							profession: userResult.profession,
-							dob: userResult.dob,
-							createdAt: userResult.createdAt,
-							updatedAt: userResult.updatedAt,
-						},
+						message: "Signup Successfull.",
+						data: userResult,
 					});
+				}
+			} else {
+				return res.send({ code: 400, status: false, message: "Email or password missing. Please insert email and password", data: [] });
+			}
+		} catch (error) {
+			return res.send({
+				code: 501,
+				status: false,
+				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.",
+				result: error.message,
+			});
+		}
+	},
+
+	signUpStep2: async (req, res) => {
+		try {
+			let user = await User.findOne({
+				where: { id: req.body.userId },
+			});
+			let checkIfAlreadyRegistered = await AcademicDetails.findOne({
+				where: { userId: req.body.userId },
+			});
+			if (checkIfAlreadyRegistered) {
+				return res.send({ code: 409, message: "User already registered.", result: [] });
+			} else {
+				if (user) {
+					let saveQualifications = await AcademicDetails.create(req.body);
+					if (saveQualifications) {
+						let getQualifications = await AcademicDetails.findOne({ where: { userId: req.body.userId } });
+						await User.update({ academicsDetailId: getQualifications.id, status: "active", color: randomColors.randomColors() }, { where: { id: req.body.userId } }).then(async (data) => {
+							if (data) {
+								let user = await User.findOne({
+									where: { id: req.body.userId },
+									attributes: ["id", "fullName", "email", "address", "mobile", "dob", "status", "userRoleId", "color", "academicsDetailId", "profession"],
+									include: [
+										{
+											model: AcademicDetails,
+											attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
+											as: "academicDetails",
+										},
+										{
+											model: UserRole,
+											as: "role",
+										},
+									],
+								});
+								return res.send({ code: 200, data: user, status: true, message: "Hooray! Your registration is complete, and you're officially a part of our community." });
+							} else {
+								return res.send({ code: 500, message: "Some error occured", status: false });
+							}
+						});
+					} else {
+						return res.send({ code: 401, message: "User not found", status: false });
+					}
+				} else {
+					return res.send({ code: 401, message: "Some error in saving Qualifications", status: false });
 				}
 			}
 		} catch (error) {
@@ -56,11 +100,22 @@ const user_controller = {
 		}
 	},
 
-	/*. 1. Create an ApI for SignUp */
+	/*. 1. Creating an ApI for Login */
 	login: async (req, res) => {
 		try {
 			let userResult = await User.findOne({
 				where: { email: req.body.email },
+				include: [
+					{
+						model: AcademicDetails,
+						attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
+						as: "academicDetails",
+					},
+					{
+						model: UserRole,
+						as: "role",
+					},
+				],
 				// include: [
 				// 	{
 				// 		model: File,
@@ -80,25 +135,11 @@ const user_controller = {
 						return res.send({ code: 401, message: "Please check your password.", status: false });
 					} else {
 						/* API for User Authentication*/
-
-						let data = {
-							id: userResult.id,
-							first_name: userResult.first_name,
-							last_name: userResult.last_name,
-							email: userResult.email,
-							address: userResult.address,
-							mobile_number: userResult.mobile_number,
-							status: userResult.status,
-							user_role: userResult.user_role,
-							createdAt: userResult.createdAt,
-							updatedAt: userResult.updatedAt,
-							color: userResult.color,
-							// profilePhoto: userResult.profilePhoto,
-						};
-						let token = jwt.sign(data, SECRET_KEY, { expiresIn: "24h" });
+						userResult.password = undefined;
+						data = userResult;
+						let token = jwt.sign(data.toJSON(), SECRET_KEY, { expiresIn: "24h" });
 						const expirationTime = new Date(jwt.decode(token).exp * 1000);
-						data.expireIn = expirationTime;
-						return res.send({ code: 200, message: "You have successfully logged in to your account.", data: { token: token, user: data }, status: true });
+						return res.send({ code: 200, message: "You have successfully logged in to your account.", data: { token: token, user: data, expireIn:expirationTime }, status: true });
 					}
 				}
 			} else {

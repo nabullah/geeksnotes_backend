@@ -17,6 +17,6 @@ app.listen(PORT, () => {
 });
 
 /* API Routers */
-const userRouter = require("./router/core/userRouter");
+const userRouter = require("./routes/core/user");
 app.use("/api/user", userRouter);
 module.exports = app;

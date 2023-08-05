@@ -26,7 +26,7 @@ module.exports = {
 				allowNull: true,
 			},
 			dob: {
-				type: Sequelize.DATE,
+				type: Sequelize.STRING,
 				allowNull: false,
 			},
 			status: {
@@ -34,10 +34,9 @@ module.exports = {
 				allowNull: false,
 				enum: ["active", "blocked"],
 			},
-			userRole: {
-				type: Sequelize.STRING,
+			userRoleId: {
+				type: Sequelize.INTEGER,
 				allowNull: false,
-				enum: ["user", "admin"],
 			},
 			color: {
 				type: Sequelize.STRING,
