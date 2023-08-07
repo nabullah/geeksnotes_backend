@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
 			profession: DataTypes.STRING,
 			academicsDetailId: DataTypes.NUMBER,
 			dob: DataTypes.STRING,
+			permission: DataTypes.STRING,
 		},
 		{
 			sequelize,

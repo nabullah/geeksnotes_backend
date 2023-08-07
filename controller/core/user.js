@@ -17,27 +17,28 @@ const user_controller = {
 				where: { email: req.body.email },
 			});
 			if (result) {
-				return res.send({ code: 409, message: "Email Already Exist.", result: [] });
+				return res.status().json({ code: 409, message: "Email Already Exist.", result: [] });
 			} else if (req.body.password && req.body.email) {
 				let password = req.body.password;
 				req.body.password = bcrypt.hashSync(password);
+				req.body.permission = "user";
 				let userSave = await User.create(req.body);
 				if (!userSave) {
-					return res.send({ code: 500, message: "Internal Server Error.", result: [] });
+					return res.status(500).json({ code: 500, message: "Internal Server Error.", result: [] });
 				} else {
 					let userResult = await User.findOne({ where: { email: req.body.email } });
-					return res.send({
+					return res.status().json({
 						code: 200,
 						status: true,
-						message: "Signup Successfull.",
-						data: userResult,
+						message: "Step 1 of registration is completed successfully.",
+						data: { id: userResult.id },
 					});
 				}
 			} else {
-				return res.send({ code: 400, status: false, message: "Email or password missing. Please insert email and password", data: [] });
+				return res.status().json({ code: 400, status: false, message: "Email or password missing. Please insert email and password", data: [] });
 			}
 		} catch (error) {
-			return res.send({
+			return res.status().json({
 				code: 501,
 				status: false,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.",
@@ -55,7 +56,7 @@ const user_controller = {
 				where: { userId: req.body.userId },
 			});
 			if (checkIfAlreadyRegistered) {
-				return res.send({ code: 409, message: "User already registered.", result: [] });
+				return res.status().json({ code: 409, message: "User already registered.", result: [] });
 			} else {
 				if (user) {
 					let saveQualifications = await AcademicDetails.create(req.body);
@@ -74,24 +75,25 @@ const user_controller = {
 										},
 										{
 											model: UserRole,
+											attributes: ["id", "roleType"],
 											as: "role",
 										},
 									],
 								});
-								return res.send({ code: 200, data: user, status: true, message: "Hooray! Your registration is complete, and you're officially a part of our community." });
+								return res.status(200).json({ code: 200, data: user, status: true, message: "Hooray! Your registration is complete, and you're officially a part of our community." });
 							} else {
-								return res.send({ code: 500, message: "Some error occured", status: false });
+								return res.status(500).json({ code: 500, message: "Some error occured", status: false });
 							}
 						});
 					} else {
-						return res.send({ code: 401, message: "User not found", status: false });
+						return res.status(200).json({ message: "User not found", status: false });
 					}
 				} else {
-					return res.send({ code: 401, message: "Some error in saving Qualifications", status: false });
+					return res.status(200).json({ message: "Some error in saving Qualifications", status: false });
 				}
 			}
 		} catch (error) {
-			return res.send({
+			return res.status().json({
 				code: 501,
 				status: false,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.",
@@ -125,28 +127,28 @@ const user_controller = {
 				// ],
 			});
 			if (!userResult) {
-				return res.send({ code: 404, message: "User Not Found. Please check Email and Password", data: [], status: false });
+				return res.status().json({ code: 404, message: "User Not Found. Please check Email and Password", data: [], status: false });
 			} else if (req.body.email && req.body.password) {
 				if (req.body.email != userResult.email) {
-					return res.send({ code: 401, message: "Please check your Email.", status: false });
+					return res.status(200).json({ message: "Please check your Email.", status: false });
 				} else {
 					let passCheck = bcrypt.compareSync(req.body.password, userResult.password);
 					if (passCheck == false) {
-						return res.send({ code: 401, message: "Please check your password.", status: false });
+						return res.status(200).json({ message: "Please check your password.", status: false });
 					} else {
 						/* API for User Authentication*/
 						userResult.password = undefined;
 						data = userResult;
 						let token = jwt.sign(data.toJSON(), SECRET_KEY, { expiresIn: "24h" });
 						const expirationTime = new Date(jwt.decode(token).exp * 1000);
-						return res.send({ code: 200, message: "You have successfully logged in to your account.", data: { token: token, user: data, expireIn:expirationTime }, status: true });
+						return res.status(200).json({ code: 200, message: "You have successfully logged in to your account.", data: { token: token, user: data, expireIn: expirationTime }, status: true });
 					}
 				}
 			} else {
-				return res.send({ code: 401, message: "Please check your email and password.", status: false });
+				return res.status(200).json({ message: "Please check your email and password.", status: false });
 			}
 		} catch (error) {
-			return res.send({
+			return res.status(500).json({
 				code: 500,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
 				result: error.message,
@@ -163,26 +165,26 @@ const user_controller = {
 				where: {
 					id: req.params.id,
 				},
-				include: [
-					{
-						model: File,
-						attributes: ["files_link"],
-						as: "profilePhoto",
-					},
-				],
+				// include: [
+				// 	{
+				// 		model: File,
+				// 		attributes: ["files_link"],
+				// 		as: "profilePhoto",
+				// 	},
+				// ],
 			});
 			if (user) {
-				return res.send({
+				return res.status().json({
 					code: 200,
 					message: "User Successfully Found.",
 					data: user,
 					status: true,
 				});
 			} else {
-				return res.send({ code: 401, message: "User Not Found.", data: [], status: false });
+				return res.status(200).json({ message: "User Not Found.", data: [], status: false });
 			}
 		} catch (error) {
-			return res.send({
+			return res.status(500).json({
 				code: 500,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
 				result: error.message,
@@ -207,16 +209,16 @@ const user_controller = {
 					{ where: { id: req.body.id } }
 				).then((data) => {
 					if (data) {
-						return res.send({ code: 200, message: "Record updated successfully.", status: true });
+						return res.status(200).json({ code: 200, message: "Record updated successfully.", status: true });
 					} else {
-						return res.send({ code: 401, message: "Record not updated. Please try again", status: false });
+						return res.status(200).json({ message: "Record not updated. Please try again", status: false });
 					}
 				});
 			} else {
-				return res.send({ code: 401, message: "Something Wrong. Please check ", status: false });
+				return res.status(500).json({ message: "Something Wrong. Please check ", status: false });
 			}
 		} catch (error) {
-			return res.send({
+			return res.status(500).json({
 				code: 500,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
 				result: error.message,
@@ -231,7 +233,7 @@ const user_controller = {
 		try {
 			const user = await User.findOne({ where: { email: req.body.email } });
 			if (user) {
-				return res.send({ message: "User already Exits.", data: [], status: false });
+				return res.status().json({ message: "User already Exits.", data: [], status: false });
 			} else {
 				let password = req.body.password;
 				req.body.password = bcrypt.hashSync(password);
@@ -246,13 +248,13 @@ const user_controller = {
 					}
 				}
 				if (!userSave) {
-					return res.send({ code: 500, message: "Internal Server Error.", status: false, result: [] });
+					return res.status(500).json({ code: 500, message: "Internal Server Error.", status: false, result: [] });
 				} else {
-					return res.send({ code: 200, status: true, data: userSave, message: "Congratulations! Your account has been successfully created." });
+					return res.status(200).json({ code: 200, status: true, data: userSave, message: "Congratulations! Your account has been successfully created." });
 				}
 			}
 		} catch (error) {
-			return res.send({
+			return res.status(500).json({
 				code: 500,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
 				result: error.message,
@@ -265,39 +267,31 @@ const user_controller = {
 
 	adminGetUserList: async (req, res) => {
 		try {
-			// const user = await db.sequelize.query(
-			//   "SELECT `id`, `first_name`, `last_name`, `email`, `address`, `mobile_number`, `status`, `user_role`, `color`, `createdAt`, `updatedAt` FROM `users` WHERE `user_role`='user'",
-			//   {
-			//     type: QueryTypes.SELECT,
-			//     include: [
-			//       {
-			//         model: File,
-			//         attributes: ["files_link"],
-			//         as: "profilePhoto",
-			//       },
-			//     ],
-			//   }
-			// );
-			const user = await User.findAll({
-				attributes: [`id`, `first_name`, `last_name`, `email`, `address`, `mobile_number`, `status`, `user_role`, `color`, `createdAt`, `updatedAt`],
-				where: {
-					user_role: "user",
-				},
-				include: [
-					{
-						model: File,
-						attributes: ["files_link"],
-						as: "profilePhoto",
-					},
-				],
-			});
-			if (user) {
-				return res.send({ code: 200, status: true, data: user, message: "User List found Successfully" });
+			if (req.permission == "admin") {
+				const user = await User.findAll({
+					attributes: ["id", "fullName", "email", "address", "mobile", "dob", "status", "userRoleId", "color", "academicsDetailId", "profession"],
+					include: [
+						{
+							model: AcademicDetails,
+							attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
+							as: "academicDetails",
+						},
+						{
+							model: UserRole,
+							as: "role",
+						},
+					],
+				});
+				if (user) {
+					return res.status(200).json({ code: 200, status: true, data: user, message: "User List found Successfully" });
+				} else {
+					return res.status(400).json({ code: 400, message: "No Active User.", status: false, data: [] });
+				}
 			} else {
-				return res.send({ message: "No Active User.", status: false, result: [] });
+				return res.status(403).json({ message: "Access Forbidden. You don't have the necessary permissions to perform this action." });
 			}
 		} catch (error) {
-			return res.send({
+			return res.status(500).json({
 				code: 500,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
 				result: error.message,
@@ -316,13 +310,13 @@ const user_controller = {
 					throw err;
 				}
 				if (user) {
-					return res.send({ code: 200, status: true, message: "User Successfully Removed" });
+					return res.status(200).json({ code: 200, status: true, message: "User Successfully Removed" });
 				} else {
-					return res.send({ message: "User not found.", status: false, result: [] });
+					return res.status(200).json({ message: "User not found.", status: false, result: [] });
 				}
 			});
 		} catch (error) {
-			return res.send({
+			return res.status(500).json({
 				code: 500,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
 				result: error.message,

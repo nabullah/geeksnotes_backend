@@ -14,18 +14,11 @@ module.exports = {
 					if (userData.status == "blocked") {
 						res.send({ code: 401, data: [], message: "User is Blocked. Please Contact the Administer" });
 					}
-					//  else {
-					// 	req.userId = userData._id;
-					// 	next();
-					// }
-					if (userData.userRole === "admin") {
-						// Admin has access to all endpoints, so continue to the next middleware
+					if (userData.permission === "user" || userData.permission === "admin") {
 						req.userId = userData._id;
-						req.userRole = userData.userRole;
+						req.permission = userData.permission;
 						next();
 					} else {
-						// For non-admin users, you can add specific checks here based on your requirements.
-						// For example, if certain endpoints are accessible only to regular users, handle it accordingly.
 						return res.status(403).json({ message: "Access Forbidden. You don't have the necessary permissions to perform this action." });
 					}
 				}

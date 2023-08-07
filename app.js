@@ -1,5 +1,7 @@
 require("dotenv").config();
 const express = require("express");
+const swaggerDocs = require("./swagger.js");
+
 const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT || 8000;
@@ -13,10 +15,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 /* Server Listen */
 app.listen(PORT, () => {
-  console.log("Server is running on Port ", PORT);
+	console.log("Server is running on Port ", PORT);
+	swaggerDocs(app, 3000);
 });
 
 /* API Routers */
-const userRouter = require("./routes/core/user");
+const userRouter = require("./routes/user.js");
+const uploadFilesRouter = require("./routes/upload_files.js");
+
 app.use("/api/user", userRouter);
+app.use("/api/upload", uploadFilesRouter);
+
 module.exports = app;

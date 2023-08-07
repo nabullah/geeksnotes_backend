@@ -2,54 +2,34 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
 	async up(queryInterface, Sequelize) {
-		await queryInterface.createTable("users", {
+		await queryInterface.createTable("uploaded_files", {
 			id: {
 				allowNull: false,
 				autoIncrement: true,
 				primaryKey: true,
 				type: Sequelize.INTEGER,
 			},
-			fullName: {
+			filePath: {
 				type: Sequelize.STRING,
 			},
-			email: {
-				type: Sequelize.STRING,
-			},
-			address: {
-				type: Sequelize.STRING,
-			},
-			password: {
-				type: Sequelize.STRING,
-			},
-			mobile: {
-				type: Sequelize.INTEGER,
-				allowNull: true,
-			},
-			dob: {
-				type: Sequelize.STRING,
-				allowNull: false,
-			},
-			status: {
-				type: Sequelize.STRING,
-				allowNull: false,
-				enum: ["active", "blocked"],
-			},
-			userRoleId: {
-				type: Sequelize.INTEGER,
-				allowNull: false,
-			},
-			color: {
-				type: Sequelize.STRING,
-			},
-			academicsDetailId: {
+			userId: {
 				type: Sequelize.INTEGER,
 			},
-			profession: {
+			fileName: {
 				type: Sequelize.STRING,
 			},
-			permission: {
+			topic: {
 				type: Sequelize.STRING,
-				default: "user",
+			},
+			subTopic: {
+				type: Sequelize.STRING,
+			},
+			description: {
+				type: Sequelize.STRING,
+			},
+			audience: {
+				type: Sequelize.JSON,
+				defaultValue: [],
 			},
 			createdAt: {
 				allowNull: false,
@@ -62,6 +42,6 @@ module.exports = {
 		});
 	},
 	async down(queryInterface, Sequelize) {
-		await queryInterface.dropTable("users");
+		await queryInterface.dropTable("uploaded_files");
 	},
 };
