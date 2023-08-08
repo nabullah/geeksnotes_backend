@@ -12,7 +12,7 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER
       },
-      qualifications: {
+      qualificationsSummary: {
         type: Sequelize.STRING
       },
       institute: {

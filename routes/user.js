@@ -86,7 +86,7 @@ userRouter.post("/registration/1", user.signUpStep1);
  *           schema:
  *             type: object
  *             properties:
- *               name:
+ *               userId:
  *                 type: number
  *                 required: true
  *               institute:
@@ -166,6 +166,27 @@ userRouter.post("/login", user.login);
 // userRouter.get("/getUserDetails/:id", authCheck.jwtToken, user.getUserDetails);
 // userRouter.post("/editUserInfo", authCheck.jwtToken, upload.single("file"), user.editUserInfo);
 // userRouter.post("/adminAddUser", authCheck.jwtToken, upload.single("file"), user.adminAddUser);
+
+/**
+ * @openapi
+ * '/api/user/adminGetUserList':
+ *  get:
+ *     tags:
+ *     - Admin
+ *     summary: Get the list of all the users
+ *     security:
+ *       - JWT: []
+ *     content:
+ *       schema:
+ *         type: object
+ *         properties:
+ *           token:
+ *             type: string
+ *             required: true
+ *     responses:
+ *       200:
+ *         description: Success
+ */
 userRouter.get("/adminGetUserList", authCheck.jwtToken, user.adminGetUserList);
 // userRouter.get("/adminDeleteUser/:id", authCheck.jwtToken, user.adminDeleteUser);
 

@@ -17,29 +17,27 @@ const user_controller = {
 				where: { email: req.body.email },
 			});
 			if (result) {
-				return res.status().json({ code: 409, message: "Email Already Exist.", result: [] });
+				return res.status(200).json({ message: "Email Already Exist.", result: [] });
 			} else if (req.body.password && req.body.email) {
 				let password = req.body.password;
 				req.body.password = bcrypt.hashSync(password);
 				req.body.permission = "user";
 				let userSave = await User.create(req.body);
 				if (!userSave) {
-					return res.status(500).json({ code: 500, message: "Internal Server Error.", result: [] });
+					return res.status(500).json({ message: "Internal Server Error.", result: [] });
 				} else {
 					let userResult = await User.findOne({ where: { email: req.body.email } });
-					return res.status().json({
-						code: 200,
+					return res.status(200).json({
 						status: true,
 						message: "Step 1 of registration is completed successfully.",
 						data: { id: userResult.id },
 					});
 				}
 			} else {
-				return res.status().json({ code: 400, status: false, message: "Email or password missing. Please insert email and password", data: [] });
+				return res.status(200).json({ status: false, message: "Email or password missing. Please insert email and password", data: [] });
 			}
 		} catch (error) {
-			return res.status().json({
-				code: 501,
+			return res.status(400).json({
 				status: false,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.",
 				result: error.message,
@@ -56,7 +54,7 @@ const user_controller = {
 				where: { userId: req.body.userId },
 			});
 			if (checkIfAlreadyRegistered) {
-				return res.status().json({ code: 409, message: "User already registered.", result: [] });
+				return res.status(200).json({ message: "User already registered.", result: [] });
 			} else {
 				if (user) {
 					let saveQualifications = await AcademicDetails.create(req.body);
@@ -80,9 +78,9 @@ const user_controller = {
 										},
 									],
 								});
-								return res.status(200).json({ code: 200, data: user, status: true, message: "Hooray! Your registration is complete, and you're officially a part of our community." });
+								return res.status(200).json({ data: user, status: true, message: "Hooray! Your registration is complete, and you're officially a part of our community." });
 							} else {
-								return res.status(500).json({ code: 500, message: "Some error occured", status: false });
+								return res.status(500).json({ message: "Some error occured", status: false });
 							}
 						});
 					} else {
@@ -93,8 +91,7 @@ const user_controller = {
 				}
 			}
 		} catch (error) {
-			return res.status().json({
-				code: 501,
+			return res.status(500).json({
 				status: false,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.",
 				result: error.message,
@@ -127,7 +124,7 @@ const user_controller = {
 				// ],
 			});
 			if (!userResult) {
-				return res.status().json({ code: 404, message: "User Not Found. Please check Email and Password", data: [], status: false });
+				return res.status(200).json({ message: "User Not Found. Please check Email and Password", data: [], status: false });
 			} else if (req.body.email && req.body.password) {
 				if (req.body.email != userResult.email) {
 					return res.status(200).json({ message: "Please check your Email.", status: false });
@@ -141,7 +138,7 @@ const user_controller = {
 						data = userResult;
 						let token = jwt.sign(data.toJSON(), SECRET_KEY, { expiresIn: "24h" });
 						const expirationTime = new Date(jwt.decode(token).exp * 1000);
-						return res.status(200).json({ code: 200, message: "You have successfully logged in to your account.", data: { token: token, user: data, expireIn: expirationTime }, status: true });
+						return res.status(200).json({ message: "You have successfully logged in to your account.", data: { token: token, user: data, expireIn: expirationTime }, status: true });
 					}
 				}
 			} else {
@@ -149,7 +146,6 @@ const user_controller = {
 			}
 		} catch (error) {
 			return res.status(500).json({
-				code: 500,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
 				result: error.message,
 				status: false,
@@ -174,8 +170,7 @@ const user_controller = {
 				// ],
 			});
 			if (user) {
-				return res.status().json({
-					code: 200,
+				return res.status(200).json({
 					message: "User Successfully Found.",
 					data: user,
 					status: true,
@@ -185,7 +180,6 @@ const user_controller = {
 			}
 		} catch (error) {
 			return res.status(500).json({
-				code: 500,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
 				result: error.message,
 				status: false,
@@ -209,9 +203,9 @@ const user_controller = {
 					{ where: { id: req.body.id } }
 				).then((data) => {
 					if (data) {
-						return res.status(200).json({ code: 200, message: "Record updated successfully.", status: true });
+						return res.status(200).json({ message: "Record updated successfully.", status: true });
 					} else {
-						return res.status(200).json({ message: "Record not updated. Please try again", status: false });
+						return res.status(500).json({ message: "Record not updated. Please try again", status: false, result: data });
 					}
 				});
 			} else {
@@ -219,7 +213,6 @@ const user_controller = {
 			}
 		} catch (error) {
 			return res.status(500).json({
-				code: 500,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
 				result: error.message,
 				status: false,
@@ -233,7 +226,7 @@ const user_controller = {
 		try {
 			const user = await User.findOne({ where: { email: req.body.email } });
 			if (user) {
-				return res.status().json({ message: "User already Exits.", data: [], status: false });
+				return res.status(200).json({ message: "User already Exits.", data: [], status: false });
 			} else {
 				let password = req.body.password;
 				req.body.password = bcrypt.hashSync(password);
@@ -248,14 +241,13 @@ const user_controller = {
 					}
 				}
 				if (!userSave) {
-					return res.status(500).json({ code: 500, message: "Internal Server Error.", status: false, result: [] });
+					return res.status(500).json({ message: "Internal Server Error.", status: false, result: [] });
 				} else {
-					return res.status(200).json({ code: 200, status: true, data: userSave, message: "Congratulations! Your account has been successfully created." });
+					return res.status(200).json({ status: true, data: userSave, message: "Congratulations! Your account has been successfully created." });
 				}
 			}
 		} catch (error) {
 			return res.status(500).json({
-				code: 500,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
 				result: error.message,
 				status: false,
@@ -283,16 +275,15 @@ const user_controller = {
 					],
 				});
 				if (user) {
-					return res.status(200).json({ code: 200, status: true, data: user, message: "User List found Successfully" });
+					return res.status(200).json({ status: true, data: user, message: "User List found Successfully" });
 				} else {
-					return res.status(400).json({ code: 400, message: "No Active User.", status: false, data: [] });
+					return res.status(200).json({ message: "No Active User.", status: false, data: [] });
 				}
 			} else {
 				return res.status(403).json({ message: "Access Forbidden. You don't have the necessary permissions to perform this action." });
 			}
 		} catch (error) {
 			return res.status(500).json({
-				code: 500,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
 				result: error.message,
 				status: false,
@@ -310,14 +301,13 @@ const user_controller = {
 					throw err;
 				}
 				if (user) {
-					return res.status(200).json({ code: 200, status: true, message: "User Successfully Removed" });
+					return res.status(200).json({ status: true, message: "User Successfully Removed" });
 				} else {
-					return res.status(200).json({ message: "User not found.", status: false, result: [] });
+					return res.status(500).json({ message: "User not found.", status: false, result: [] });
 				}
 			});
 		} catch (error) {
 			return res.status(500).json({
-				code: 500,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
 				result: error.message,
 				status: false,

@@ -8,6 +8,7 @@ module.exports = {
 			let token1 = req.headers["authorization"];
 			let token2 = token1.split(" ")[1];
 			let token = jwt.verify(token2, SECRET_KEY);
+
 			if (token) {
 				let userData = await User.findOne({ where: { id: token.id } });
 				if (userData) {
@@ -15,7 +16,7 @@ module.exports = {
 						res.send({ code: 401, data: [], message: "User is Blocked. Please Contact the Administer" });
 					}
 					if (userData.permission === "user" || userData.permission === "admin") {
-						req.userId = userData._id;
+						req.userId = userData.id;
 						req.permission = userData.permission;
 						next();
 					} else {
@@ -24,10 +25,8 @@ module.exports = {
 				}
 			}
 		} catch (error) {
-			return res.send({
-				responseCode: 501,
+			return res.status(403).json({
 				message: "You must be logged in to perform this action. Please log in and try again !!",
-				responseMessage: error.message,
 			});
 		}
 	},

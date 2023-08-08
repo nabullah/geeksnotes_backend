@@ -37,13 +37,13 @@ db.Sequelize = Sequelize;
 db.User = require("./user")(sequelize, Sequelize);
 db.AcademicDetails = require("./academicdetails")(sequelize, Sequelize);
 db.UserRole = require("./userroles")(sequelize, Sequelize);
+db.UploadFiles = require("./upload_files")(sequelize, Sequelize);
 
 db.User.hasOne(db.AcademicDetails, {
 	as: "academicDetails",
 	foreignKey: "id",
 	sourceKey: "academicsDetailId",
 });
-
 
 db.User.belongsTo(db.UserRole, { foreignKey: "userRoleId", as: "role" });
 

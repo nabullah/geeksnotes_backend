@@ -8,6 +8,18 @@ const options = {
 			title: "Geeks Notes",
 			version: "1.0.0",
 		},
+		components: {
+			securitySchemes: {
+			  JWT: {
+				type: 'apiKey',
+				in: 'header',
+				name: 'Authorization',
+			  },
+			},
+		},
+		security: {
+			bearerAuth: [],
+		},
 	},
 	// looks for configuration in specified directories
 	apis: ["./routes/*.js"],
