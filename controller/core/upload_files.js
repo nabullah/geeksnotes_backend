@@ -1,10 +1,9 @@
-const User = require("./user").User;
-const bcrypt = require("bcryptjs");
+const User = require("../../models/").User;
+const UserRole = require("../../models/").UserRole;
 const fs = require("fs");
 const { UploadFiles } = require("../../models");
 
 const upload_files = {
-	/*. 1. Create an ApI for SignUp Step 1 */
 	uploadSingleFile: async (req, res) => {
 		try {
 			if (req.userId) {
@@ -25,7 +24,7 @@ const upload_files = {
 						if (!uploadFiles) {
 							return res.status(500).json({ status: false, message: "Your file could not be uploaded. Please try again." });
 						} else {
-							return res.status(200).json({ status: true, message: "File uploaded successfully.", data: uploadFiles});
+							return res.status(200).json({ status: true, message: "File uploaded successfully.", data: uploadFiles });
 						}
 					} else {
 						return res.status(200).json({ status: false, message: "User's Role type is required.", data: [] });
@@ -35,6 +34,39 @@ const upload_files = {
 				}
 			} else {
 				return res.status(401).json({ status: false, message: "Unauthorized Access! Please login first." });
+			}
+		} catch (error) {
+			return res.status(500).json({
+				status: false,
+				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.",
+				result: error.message,
+			});
+		}
+	},
+
+	getAllNotes: async (req, res) => {
+		try {
+			const files = await UploadFiles.findAll({
+				where: { isPrivate: false },
+				include: [
+					{
+						model: User,
+						attributes: ["id", "fullName", "status", "userRoleId", "profession"],
+						as: "user",
+						include: [
+							{
+								model: UserRole,
+								attributes: ["id", "roleType"],
+								as: "role",
+							},
+						],
+					},
+				],
+			});
+			if (!files) {
+				return res.status(500).json({ status: false, message: "Could not get the files. Please try again." });
+			} else {
+				return res.status(200).json({ status: true, message: "Files successfully found.", data: files });
 			}
 		} catch (error) {
 			return res.status(500).json({
