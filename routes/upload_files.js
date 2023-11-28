@@ -81,5 +81,6 @@ const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
  *                   type: number
  */
 uploadFiles.post("/uploadFilesSingle", authCheck.jwtToken, upload.single("file"), UploadFilesController.uploadSingleFile);
+uploadFiles.get("/getAllNotes", UploadFilesController.getAllNotes);
 
 module.exports = uploadFiles;
