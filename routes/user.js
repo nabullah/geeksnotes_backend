@@ -163,9 +163,6 @@ userRouter.post("/registration/2", user.signUpStep2);
  */
 
 userRouter.post("/login", user.login);
-// userRouter.get("/getUserDetails/:id", authCheck.jwtToken, user.getUserDetails);
-// userRouter.post("/editUserInfo", authCheck.jwtToken, upload.single("file"), user.editUserInfo);
-// userRouter.post("/adminAddUser", authCheck.jwtToken, upload.single("file"), user.adminAddUser);
 
 /**
  * @openapi
@@ -188,6 +185,26 @@ userRouter.post("/login", user.login);
  *         description: Success
  */
 userRouter.get("/adminGetUserList", authCheck.jwtToken, user.adminGetUserList);
-// userRouter.get("/adminDeleteUser/:id", authCheck.jwtToken, user.adminDeleteUser);
+
+/**
+ * @openapi
+ * '/api/user/getAllUserRoles':
+ *  get:
+ *     tags:
+ *     - Users
+ *     summary: Get the list of all types of user roles
+ *     security:
+ *       - JWT: []
+ *     content:
+ *       schema:
+ *         type: object
+ *         properties:
+ *           token:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Success
+ */
+userRouter.get("/getAllUserRoles", user.getAllUserRoles);
 
 module.exports = userRouter;

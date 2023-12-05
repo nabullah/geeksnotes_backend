@@ -314,6 +314,22 @@ const user_controller = {
 			});
 		}
 	},
+
+	/**Get all user roles */
+
+	getAllUserRoles: async (req, res) => {
+		try {
+			const userRoles = await UserRole.findAll();
+			if (!userRoles) return res.status(404).json({ message: "No User Roles Found", status: false, result: [] });
+			return res.status(200).json({ status: true, data: userRoles, message: "User Roles List found Successfully" });
+		} catch (error) {
+			return res.status(500).json({
+				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
+				result: error.message,
+				status: false,
+			});
+		}
+	},
 };
 
 module.exports = user_controller;
