@@ -274,29 +274,57 @@ const user_controller = {
 	/**Get all user details From Admin Panel */
 
 	adminGetUserList: async (req, res) => {
+		// try {
+		// 	if (req.permission == "admin") {
+		// 		const user = await User.findAll({
+		// 			attributes: ["id", "fullName", "email", "address", "mobile", "dob", "status", "userRoleId", "color", "academicsDetailId", "profession"],
+		// 			include: [
+		// 				{
+		// 					model: AcademicDetails,
+		// 					attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
+		// 					as: "academicDetails",
+		// 				},
+		// 				{
+		// 					model: UserRole,
+		// 					as: "role",
+		// 				},
+		// 			],
+		// 		});
+		// 		if (user) {
+		// 			return res.status(200).json({ status: true, data: user, message: "User List found Successfully" });
+		// 		} else {
+		// 			return res.status(200).json({ message: "No Active User.", status: false, data: [] });
+		// 		}
+		// 	} else {
+		// 		return res.status(403).json({ message: "Access Forbidden. You don't have the necessary permissions to perform this action." });
+		// 	}
+		// } catch (error) {
+		// 	return res.status(500).json({
+		// 		message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
+		// 		result: error.message,
+		// 		status: false,
+		// 	});
+		// }
+
 		try {
-			if (req.permission == "admin") {
-				const user = await User.findAll({
-					attributes: ["id", "fullName", "email", "address", "mobile", "dob", "status", "userRoleId", "color", "academicsDetailId", "profession"],
-					include: [
-						{
-							model: AcademicDetails,
-							attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
-							as: "academicDetails",
-						},
-						{
-							model: UserRole,
-							as: "role",
-						},
-					],
-				});
-				if (user) {
-					return res.status(200).json({ status: true, data: user, message: "User List found Successfully" });
-				} else {
-					return res.status(200).json({ message: "No Active User.", status: false, data: [] });
-				}
+			const user = await User.findAll({
+				attributes: ["id", "fullName", "email", "address", "mobile", "dob", "permission", "status", "userRoleId", "color", "academicsDetailId", "profession"],
+				include: [
+					{
+						model: AcademicDetails,
+						attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
+						as: "academicDetails",
+					},
+					{
+						model: UserRole,
+						as: "role",
+					},
+				],
+			});
+			if (user) {
+				return res.status(200).json({ status: true, data: user, message: "User List found Successfully" });
 			} else {
-				return res.status(403).json({ message: "Access Forbidden. You don't have the necessary permissions to perform this action." });
+				return res.status(200).json({ message: "No Active User.", status: false, data: [] });
 			}
 		} catch (error) {
 			return res.status(500).json({
