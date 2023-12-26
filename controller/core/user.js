@@ -1,11 +1,14 @@
 const User = require("../../models").User;
 const AcademicDetails = require("../../models").AcademicDetails;
 const UserRole = require("../../models").UserRole;
+const OTP = require("../../models").OTP;
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "6hEVETCGQJ5xmVMA235467uyjhtrety5yrt$tgw54teg#$%##%g#$#$6e9GasasdasdXjeWDEE5AHiaOaXXFcVNiC548=34rgsfdfwer23rwfasdA@#$%gfsdf#%$t%trfsdda";
 const db = require("../../models/index");
 const randomColors = require("../../util/functions");
+const otpGenerator = require("../../util/OTP");
+const sendOTPEmail = require("../../util/email");
 // const File = require("../../models").File;
 // const fs = require("fs");
 
@@ -27,6 +30,12 @@ const user_controller = {
 					return res.status(500).json({ message: "Internal Server Error.", result: [] });
 				} else {
 					let userResult = await User.findOne({ where: { email: req.body.email } });
+					const OTP = await otpGenerator.sendOTP(userResult.id);
+					await sendOTPEmail.sendOTPEmail({
+						email: userResult.email,
+						otp: OTP["dataValues"]["otp"],
+						name: userResult.fullName,
+					});
 					return res.status(200).json({
 						status: true,
 						message: "Step 1 of registration is completed successfully.",
@@ -62,23 +71,30 @@ const user_controller = {
 						let getQualifications = await AcademicDetails.findOne({ where: { userId: req.body.userId } });
 						await User.update({ academicsDetailId: getQualifications.id, status: "active", color: randomColors.randomColors() }, { where: { id: req.body.userId } }).then(async (data) => {
 							if (data) {
-								let user = await User.findOne({
-									where: { id: req.body.userId },
-									attributes: ["id", "fullName", "email", "address", "mobile", "dob", "status", "userRoleId", "color", "academicsDetailId", "profession"],
-									include: [
-										{
-											model: AcademicDetails,
-											attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
-											as: "academicDetails",
-										},
-										{
-											model: UserRole,
-											attributes: ["id", "roleType"],
-											as: "role",
-										},
-									],
-								});
-								return res.status(200).json({ data: user, status: true, message: "Hooray! Your registration is complete, and you're officially a part of our community." });
+								const isVerified = await OTP.findOne({ where: { userId: req.body.userId } });
+								console.log(">>>>>>>>>", isVerified);
+								if (isVerified.verified) {
+									await User.update({ isVerified: true }, { where: { id: req.body.userId } });
+									let user = await User.findOne({
+										where: { id: req.body.userId },
+										attributes: ["id", "fullName", "email", "isVerified", "address", "mobile", "dob", "status", "userRoleId", "color", "academicsDetailId", "profession"],
+										include: [
+											{
+												model: AcademicDetails,
+												attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
+												as: "academicDetails",
+											},
+											{
+												model: UserRole,
+												attributes: ["id", "roleType"],
+												as: "role",
+											},
+										],
+									});
+									return res.status(200).json({ data: user, status: true, message: "Hooray! Your registration is complete, and you're officially a part of our community." });
+								} else {
+									return res.status(401).json({ data: [], status: false, isVerified: false, message: "User is not verified. Please verify your account." });
+								}
 							} else {
 								return res.status(500).json({ message: "Some error occured", status: false });
 							}

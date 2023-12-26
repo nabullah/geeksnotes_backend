@@ -23,8 +23,9 @@ module.exports = (sequelize, DataTypes) => {
 			color: DataTypes.STRING,
 			profession: DataTypes.STRING,
 			academicsDetailId: DataTypes.NUMBER,
-			dob: DataTypes.STRING,
+			dob: { type: DataTypes.STRING, allowNull: true },
 			permission: DataTypes.STRING,
+			isVerified: DataTypes.BOOLEAN,
 		},
 		{
 			sequelize,
