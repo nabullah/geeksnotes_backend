@@ -30,7 +30,7 @@ const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
  * '/api/user/registration/1':
  *  post:
  *     tags:
- *     - Registration
+ *     - Authentication
  *     summary: Registration Step 1
  *     requestBody:
  *       content:
@@ -78,7 +78,7 @@ userRouter.post("/registration/1", user.signUpStep1);
  * '/api/user/registration/2':
  *  post:
  *     tags:
- *     - Registration
+ *     - Authentication
  *     summary: Registration Step 2
  *     requestBody:
  *       content:
@@ -132,7 +132,7 @@ userRouter.post("/registration/2", user.signUpStep2);
  * '/api/user/login':
  *  post:
  *     tags:
- *     - Login
+ *     - Authentication
  *     summary: Login API
  *     requestBody:
  *       content:
@@ -193,8 +193,6 @@ userRouter.get("/adminGetUserList", authCheck.jwtToken, user.adminGetUserList);
  *     tags:
  *     - Users
  *     summary: Get the list of all types of user roles
- *     security:
- *       - JWT: []
  *     content:
  *       schema:
  *         type: object
@@ -206,5 +204,43 @@ userRouter.get("/adminGetUserList", authCheck.jwtToken, user.adminGetUserList);
  *         description: Success
  */
 userRouter.get("/getAllUserRoles", user.getAllUserRoles);
+
+/**
+ * @openapi
+ * '/api/user/validateEmail':
+ *  get:
+ *     tags:
+ *     - Authentication
+ *     summary: Validate email address.
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         description: Your email address.
+ *     responses:
+ *       200:
+ *         description: Success
+ */
+userRouter.get("/validateEmail", user.validateEmail);
+
+/**
+ * @openapi
+ * '/api/user/resetPassword':
+ *  get:
+ *     tags:
+ *     - Authentication
+ *     summary: Reset password.
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         description: Your email address.
+ *     responses:
+ *       200:
+ *         description: Success
+ */
+userRouter.get("/resetPassword", user.resetPassword);
 
 module.exports = userRouter;

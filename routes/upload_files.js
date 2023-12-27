@@ -10,14 +10,16 @@ const multerStorage = multer.diskStorage({
 		cb(null, "public/notes");
 	},
 	filename: (req, file, cb) => {
-		const ext = file.mimetype.split("/")[1];
-		cb(null, `notes-${file.fieldname}-${Date.now()}.${ext}`);
+		let ext = file.originalname.substring(file.originalname.lastIndexOf("."), file.originalname.length);
+		cb(null, `notes-${file.fieldname}-${Date.now()}${ext}`);
 	},
 });
 
 // Multer Filter
 const multerFilter = (req, file, cb) => {
-	if (file.mimetype.split("/")[1] === "pdf" || file.mimetype.split("/")[1] === "docx" || file.mimetype.split("/")[1] === "pptx") {
+	const allowedFormats = [".pdf", ".docx", ".pptx"];
+	let ext = file.originalname.substring(file.originalname.lastIndexOf("."), file.originalname.length);
+	if (allowedFormats.includes(ext)) {
 		cb(null, true);
 	} else {
 		cb(new Error("Invalid FIle!!"), false);
@@ -81,6 +83,24 @@ const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
  *                   type: number
  */
 uploadFiles.post("/uploadFilesSingle", authCheck.jwtToken, upload.single("file"), UploadFilesController.uploadSingleFile);
+
+/**
+ * @openapi
+ * '/api/user/getAllUserRoles':
+ *  get:
+ *     tags:
+ *     - Users
+ *     summary: Get the list of all types of user roles
+ *     content:
+ *       schema:
+ *         type: object
+ *         properties:
+ *           token:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Success
+ */
 uploadFiles.get("/getAllNotes", UploadFilesController.getAllNotes);
 
 module.exports = uploadFiles;

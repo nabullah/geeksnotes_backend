@@ -11,6 +11,9 @@ const otpGenerator = require("../../util/OTP");
 const sendOTPEmail = require("../../util/email");
 // const File = require("../../models").File;
 // const fs = require("fs");
+const emailValidator = require("deep-email-validator");
+const functions = require("../../util/functions");
+const email = require("../../util/email");
 
 const user_controller = {
 	/*. 1. Create an ApI for SignUp Step 1 */
@@ -366,6 +369,54 @@ const user_controller = {
 			const userRoles = await UserRole.findAll();
 			if (!userRoles) return res.status(404).json({ message: "No User Roles Found", status: false, result: [] });
 			return res.status(200).json({ status: true, data: userRoles, message: "User Roles List found Successfully" });
+		} catch (error) {
+			return res.status(500).json({
+				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
+				result: error.message,
+				status: false,
+			});
+		}
+	},
+
+	/**Validate Email Id */
+
+	validateEmail: async (req, res) => {
+		try {
+			const email = req.query.email;
+			if (email) {
+				const user = await User.findOne({ where: { email: email } });
+				if (!user) {
+					const isValid = await emailValidator.validate(email);
+					if (!isValid.valid) return res.status(400).json({ status: false, message: "Email is invalid. Please use genuine email address." });
+					else return res.status(200).json({ status: true, message: "Email is available." });
+				} else return res.status(400).json({ status: false, message: "Email address is already in use." });
+			} else return res.status(404).json({ status: false, data: [], message: "Email Id is required." });
+		} catch (error) {
+			return res.status(500).json({
+				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
+				result: error.message,
+				status: false,
+			});
+		}
+	},
+
+	resetPassword: async (req, res) => {
+		try {
+			if (req.query.email) {
+				const user = await User.findOne({ where: { email: req.query.email } });
+				if (!user) {
+					return res.status(400).json({ status: false, message: "User not found." });
+				} else {
+					const password = await functions.generatePassword(11);
+					console.log(password);
+					const encodedPassword = bcrypt.hashSync(password);
+					const isUpdated = await User.update({ password: encodedPassword }, { where: { email: req.query.email } });
+					if (isUpdated) {
+						await email.sendResetPasswordEmail({ email: req.query.email, name: user.fullName, password: password });
+						return res.status(200).json({ status: true, message: "Temporary password sent to your email address." });
+					} else return res.status(400).json({ status: false, message: "Something went wrong. Please try again later." });
+				}
+			} else return res.status(400).json({ status: false, message: "Email is required." });
 		} catch (error) {
 			return res.status(500).json({
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",

@@ -30,7 +30,7 @@ const OTPController = {
 			} else {
 				return res.status(400).json({ message: "OTP not found", data: null, status: false });
 			}
-		} catch {
+		} catch (error) {
 			return res.status(500).json({
 				status: false,
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.",
