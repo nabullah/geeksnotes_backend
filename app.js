@@ -23,9 +23,11 @@ app.listen(PORT, () => {
 const userRouter = require("./routes/user.js");
 const uploadFilesRouter = require("./routes/upload_files.js");
 const otpRouter = require("./routes/otp.js");
+const notesRouter = require("./routes/notes.js");
 
 app.use("/api/user", userRouter);
 app.use("/api/upload", uploadFilesRouter);
 app.use("/api", otpRouter);
+app.use("/api/notes", notesRouter);
 
 module.exports = app;

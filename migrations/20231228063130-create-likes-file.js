@@ -2,34 +2,20 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
 	async up(queryInterface, Sequelize) {
-		await queryInterface.createTable("uploaded_files", {
+		await queryInterface.createTable("likes_files", {
 			id: {
 				allowNull: false,
 				autoIncrement: true,
 				primaryKey: true,
 				type: Sequelize.INTEGER,
 			},
-			filePath: {
-				type: Sequelize.STRING,
-			},
 			userId: {
 				type: Sequelize.INTEGER,
+				allowNull: false,
 			},
-			fileName: {
-				type: Sequelize.STRING,
-			},
-			topic: {
-				type: Sequelize.STRING,
-			},
-			subTopic: {
-				type: Sequelize.STRING,
-			},
-			description: {
-				type: Sequelize.STRING,
-			},
-			audience: {
-				type: Sequelize.JSON,
-				defaultValue: [],
+			fileId: {
+				type: Sequelize.INTEGER,
+				allowNull: false,
 			},
 			createdAt: {
 				allowNull: false,
@@ -42,6 +28,6 @@ module.exports = {
 		});
 	},
 	async down(queryInterface, Sequelize) {
-		await queryInterface.dropTable("uploaded_files");
+		await queryInterface.dropTable("likes_files");
 	},
 };

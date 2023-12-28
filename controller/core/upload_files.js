@@ -22,12 +22,13 @@ const upload_files = {
 								subTopic: req.body.subTopic,
 								description: req.body.description,
 								userId: req.userId,
+								tags: JSON.stringify(req.body.tags),
 							});
 							if (!uploadFiles) {
 								return res.status(500).json({ status: false, message: "Your file could not be uploaded. Please try again." });
 							} else {
 								const encryptedFiles = CryptoJS.AES.encrypt(JSON.stringify(uploadFiles), process.env.SECRET_KEY).toString();
-								console.log(uploadFiles)
+								console.log(uploadFiles);
 								return res.status(200).json({ status: true, message: "File uploaded successfully.", data: encryptedFiles });
 							}
 						} else {

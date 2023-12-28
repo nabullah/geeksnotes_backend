@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
 			topic: DataTypes.STRING,
 			subTopic: DataTypes.STRING,
 			description: DataTypes.STRING,
+			tags: DataTypes.STRING,
 			audienceRolesIds: DataTypes.JSON,
 			fileType: DataTypes.STRING,
 			isPrivate: DataTypes.BOOLEAN,
