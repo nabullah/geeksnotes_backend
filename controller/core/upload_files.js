@@ -16,13 +16,13 @@ const upload_files = {
 								filePath: file.path.split("\\").slice(1).join("/"),
 								fileName: file.originalname,
 								fileType: file.originalname.substring(file.originalname.lastIndexOf("."), file.originalname.length),
-								audienceRolesIds: JSON.stringify(req.body.audienceRolesIds),
+								audienceRolesIds: req.body.audienceRolesIds,
 								isPrivate: false,
 								topic: req.body.topic,
 								subTopic: req.body.subTopic,
 								description: req.body.description,
 								userId: req.userId,
-								tags: JSON.stringify(req.body.tags),
+								tags: req.body.tags,
 							});
 							if (!uploadFiles) {
 								return res.status(500).json({ status: false, message: "Your file could not be uploaded. Please try again." });
@@ -74,6 +74,25 @@ const upload_files = {
 			} else {
 				const encryptedFiles = CryptoJS.AES.encrypt(JSON.stringify(files), process.env.SECRET_KEY).toString();
 				return res.status(200).json({ status: true, message: "Files successfully found.", data: encryptedFiles });
+			}
+		} catch (error) {
+			return res.status(500).json({
+				status: false,
+				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.",
+				result: error.message,
+			});
+		}
+	},
+
+	getFilesWithUserId: async (req, res) => {
+		try {
+			const userId = req.userId;
+			const filesList = await UploadFiles.findAll({ where: { userId: userId } });
+			if (filesList) {
+				const encryptedFiles = CryptoJS.AES.encrypt(JSON.stringify(filesList), process.env.SECRET_KEY).toString();
+				return res.status(200).json({ status: true, message: "Files found successfully.", data: encryptedFiles });
+			} else {
+				return res.status(200).json({ status: true, message: "Files found successfully.", data: [] });
 			}
 		} catch (error) {
 			return res.status(500).json({

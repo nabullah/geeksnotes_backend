@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
 			filePath: DataTypes.STRING,
 			userId: DataTypes.INTEGER,
 			fileName: DataTypes.STRING,
+			fileSize: DataTypes.STRING,
 			topic: DataTypes.STRING,
 			subTopic: DataTypes.STRING,
 			description: DataTypes.STRING,

@@ -103,4 +103,23 @@ uploadFiles.post("/uploadFilesSingle", authCheck.jwtToken, upload.single("file")
  */
 uploadFiles.get("/getAllNotes", UploadFilesController.getAllNotes);
 
+/**
+ * @openapi
+ * '/api/upload/getFilesWithUserId':
+ *  get:
+ *     tags:
+ *     - Users
+ *     summary: Get the list of all uploaded files a loggedin user.
+ *     content:
+ *       schema:
+ *         type: object
+ *         properties:
+ *           token:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Success
+ */
+uploadFiles.get("/getFilesWithUserId", authCheck.jwtToken, UploadFilesController.getFilesWithUserId);
+
 module.exports = uploadFiles;
