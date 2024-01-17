@@ -84,42 +84,6 @@ const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
  */
 uploadFiles.post("/uploadFilesSingle", authCheck.jwtToken, upload.single("file"), UploadFilesController.uploadSingleFile);
 
-/**
- * @openapi
- * '/api/user/getAllUserRoles':
- *  get:
- *     tags:
- *     - Users
- *     summary: Get the list of all types of user roles
- *     content:
- *       schema:
- *         type: object
- *         properties:
- *           token:
- *             type: string
- *     responses:
- *       200:
- *         description: Success
- */
-uploadFiles.get("/getAllNotes", UploadFilesController.getAllNotes);
 
-/**
- * @openapi
- * '/api/upload/getFilesWithUserId':
- *  get:
- *     tags:
- *     - Users
- *     summary: Get the list of all uploaded files a loggedin user.
- *     content:
- *       schema:
- *         type: object
- *         properties:
- *           token:
- *             type: string
- *     responses:
- *       200:
- *         description: Success
- */
-uploadFiles.get("/getFilesWithUserId", authCheck.jwtToken, UploadFilesController.getFilesWithUserId);
 
 module.exports = uploadFiles;
