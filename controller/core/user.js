@@ -1,13 +1,19 @@
 const User = require("../../models").User;
 const AcademicDetails = require("../../models").AcademicDetails;
 const UserRole = require("../../models").UserRole;
+const OTP = require("../../models").OTP;
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "6hEVETCGQJ5xmVMA235467uyjhtrety5yrt$tgw54teg#$%##%g#$#$6e9GasasdasdXjeWDEE5AHiaOaXXFcVNiC548=34rgsfdfwer23rwfasdA@#$%gfsdf#%$t%trfsdda";
 const db = require("../../models/index");
 const randomColors = require("../../util/functions");
+const otpGenerator = require("../../util/OTP");
+const sendOTPEmail = require("../../util/email");
 // const File = require("../../models").File;
 // const fs = require("fs");
+const emailValidator = require("deep-email-validator");
+const functions = require("../../util/functions");
+const email = require("../../util/email");
 
 const user_controller = {
 	/*. 1. Create an ApI for SignUp Step 1 */
@@ -27,6 +33,12 @@ const user_controller = {
 					return res.status(500).json({ message: "Internal Server Error.", result: [] });
 				} else {
 					let userResult = await User.findOne({ where: { email: req.body.email } });
+					const OTP = await otpGenerator.sendOTP(userResult.id);
+					await sendOTPEmail.sendOTPEmail({
+						email: userResult.email,
+						otp: OTP["dataValues"]["otp"],
+						name: userResult.fullName,
+					});
 					return res.status(200).json({
 						status: true,
 						message: "Step 1 of registration is completed successfully.",
@@ -62,23 +74,30 @@ const user_controller = {
 						let getQualifications = await AcademicDetails.findOne({ where: { userId: req.body.userId } });
 						await User.update({ academicsDetailId: getQualifications.id, status: "active", color: randomColors.randomColors() }, { where: { id: req.body.userId } }).then(async (data) => {
 							if (data) {
-								let user = await User.findOne({
-									where: { id: req.body.userId },
-									attributes: ["id", "fullName", "email", "address", "mobile", "dob", "status", "userRoleId", "color", "academicsDetailId", "profession"],
-									include: [
-										{
-											model: AcademicDetails,
-											attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
-											as: "academicDetails",
-										},
-										{
-											model: UserRole,
-											attributes: ["id", "roleType"],
-											as: "role",
-										},
-									],
-								});
-								return res.status(200).json({ data: user, status: true, message: "Hooray! Your registration is complete, and you're officially a part of our community." });
+								const isVerified = await OTP.findOne({ where: { userId: req.body.userId } });
+								console.log(">>>>>>>>>", isVerified);
+								if (isVerified.verified) {
+									await User.update({ isVerified: true }, { where: { id: req.body.userId } });
+									let user = await User.findOne({
+										where: { id: req.body.userId },
+										attributes: ["id", "fullName", "email", "isVerified", "address", "mobile", "dob", "status", "userRoleId", "color", "academicsDetailId", "profession"],
+										include: [
+											{
+												model: AcademicDetails,
+												attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
+												as: "academicDetails",
+											},
+											{
+												model: UserRole,
+												attributes: ["id", "roleType"],
+												as: "role",
+											},
+										],
+									});
+									return res.status(200).json({ data: user, status: true, message: "Hooray! Your registration is complete, and you're officially a part of our community." });
+								} else {
+									return res.status(401).json({ data: [], status: false, isVerified: false, message: "User is not verified. Please verify your account." });
+								}
 							} else {
 								return res.status(500).json({ message: "Some error occured", status: false });
 							}
@@ -258,29 +277,57 @@ const user_controller = {
 	/**Get all user details From Admin Panel */
 
 	adminGetUserList: async (req, res) => {
+		// try {
+		// 	if (req.permission == "admin") {
+		// 		const user = await User.findAll({
+		// 			attributes: ["id", "fullName", "email", "address", "mobile", "dob", "status", "userRoleId", "color", "academicsDetailId", "profession"],
+		// 			include: [
+		// 				{
+		// 					model: AcademicDetails,
+		// 					attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
+		// 					as: "academicDetails",
+		// 				},
+		// 				{
+		// 					model: UserRole,
+		// 					as: "role",
+		// 				},
+		// 			],
+		// 		});
+		// 		if (user) {
+		// 			return res.status(200).json({ status: true, data: user, message: "User List found Successfully" });
+		// 		} else {
+		// 			return res.status(200).json({ message: "No Active User.", status: false, data: [] });
+		// 		}
+		// 	} else {
+		// 		return res.status(403).json({ message: "Access Forbidden. You don't have the necessary permissions to perform this action." });
+		// 	}
+		// } catch (error) {
+		// 	return res.status(500).json({
+		// 		message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
+		// 		result: error.message,
+		// 		status: false,
+		// 	});
+		// }
+
 		try {
-			if (req.permission == "admin") {
-				const user = await User.findAll({
-					attributes: ["id", "fullName", "email", "address", "mobile", "dob", "status", "userRoleId", "color", "academicsDetailId", "profession"],
-					include: [
-						{
-							model: AcademicDetails,
-							attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
-							as: "academicDetails",
-						},
-						{
-							model: UserRole,
-							as: "role",
-						},
-					],
-				});
-				if (user) {
-					return res.status(200).json({ status: true, data: user, message: "User List found Successfully" });
-				} else {
-					return res.status(200).json({ message: "No Active User.", status: false, data: [] });
-				}
+			const user = await User.findAll({
+				attributes: ["id", "fullName", "email", "address", "mobile", "dob", "permission", "status", "userRoleId", "color", "academicsDetailId", "profession"],
+				include: [
+					{
+						model: AcademicDetails,
+						attributes: ["id", "userId", "qualificationsSummary", "institute", "place", "graduationDate", "graduationYear"],
+						as: "academicDetails",
+					},
+					{
+						model: UserRole,
+						as: "role",
+					},
+				],
+			});
+			if (user) {
+				return res.status(200).json({ status: true, data: user, message: "User List found Successfully" });
 			} else {
-				return res.status(403).json({ message: "Access Forbidden. You don't have the necessary permissions to perform this action." });
+				return res.status(200).json({ message: "No Active User.", status: false, data: [] });
 			}
 		} catch (error) {
 			return res.status(500).json({
@@ -306,6 +353,70 @@ const user_controller = {
 					return res.status(500).json({ message: "User not found.", status: false, result: [] });
 				}
 			});
+		} catch (error) {
+			return res.status(500).json({
+				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
+				result: error.message,
+				status: false,
+			});
+		}
+	},
+
+	/**Get all user roles */
+
+	getAllUserRoles: async (req, res) => {
+		try {
+			const userRoles = await UserRole.findAll();
+			if (!userRoles) return res.status(404).json({ message: "No User Roles Found", status: false, result: [] });
+			return res.status(200).json({ status: true, data: userRoles, message: "User Roles List found Successfully" });
+		} catch (error) {
+			return res.status(500).json({
+				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
+				result: error.message,
+				status: false,
+			});
+		}
+	},
+
+	/**Validate Email Id */
+
+	validateEmail: async (req, res) => {
+		try {
+			const email = req.query.email;
+			if (email) {
+				const user = await User.findOne({ where: { email: email } });
+				if (!user) {
+					const isValid = await emailValidator.validate(email);
+					if (!isValid.valid) return res.status(400).json({ status: false, message: "Email is invalid. Please use genuine email address." });
+					else return res.status(200).json({ status: true, message: "Email is available." });
+				} else return res.status(400).json({ status: false, message: "Email address is already in use." });
+			} else return res.status(404).json({ status: false, data: [], message: "Email Id is required." });
+		} catch (error) {
+			return res.status(500).json({
+				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",
+				result: error.message,
+				status: false,
+			});
+		}
+	},
+
+	resetPassword: async (req, res) => {
+		try {
+			if (req.query.email) {
+				const user = await User.findOne({ where: { email: req.query.email } });
+				if (!user) {
+					return res.status(400).json({ status: false, message: "User not found." });
+				} else {
+					const password = await functions.generatePassword(11);
+					console.log(password);
+					const encodedPassword = bcrypt.hashSync(password);
+					const isUpdated = await User.update({ password: encodedPassword }, { where: { email: req.query.email } });
+					if (isUpdated) {
+						await email.sendResetPasswordEmail({ email: req.query.email, name: user.fullName, password: password });
+						return res.status(200).json({ status: true, message: "Temporary password sent to your email address." });
+					} else return res.status(400).json({ status: false, message: "Something went wrong. Please try again later." });
+				}
+			} else return res.status(400).json({ status: false, message: "Email is required." });
 		} catch (error) {
 			return res.status(500).json({
 				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.!",

@@ -48,4 +48,12 @@ db.User.hasOne(db.AcademicDetails, {
 db.User.belongsTo(db.UserRole, { foreignKey: "userRoleId", as: "role" });
 db.UploadFiles.hasOne(db.User, { foreignKey: "id", sourceKey: "userId", as: "user" });
 
+db.OTP = require("./otp")(sequelize, Sequelize);
+db.LikesFiles = require("./likes_file")(sequelize, Sequelize);
+db.ViewsFiles = require("./views_file")(sequelize, Sequelize);
+
+db.UploadFiles.hasMany(db.LikesFiles, { foreignKey: "fileId", as: "likes" });
+db.LikesFiles.belongsTo(db.UploadFiles, { foreignKey: "fileId" });
+db.UploadFiles.hasOne(db.ViewsFiles, { foreignKey: "fileId", as: "views" });
+
 module.exports = db;

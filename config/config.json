@@ -4,7 +4,8 @@
     "password": "",
     "database": "notes_db_geeks",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "port" : 3308
   },
   "test": {
     "username": "root",
