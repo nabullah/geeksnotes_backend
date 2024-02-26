@@ -6,6 +6,7 @@ const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT || 8000;
 const bodyParser = require("body-parser");
+const path = require("path");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -17,6 +18,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.listen(PORT, () => {
 	console.log("Server is running on Port ", PORT);
 	swaggerDocs(app, 3000);
+});
+
+// Views
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
+
+app.get("/", function (req, res) {
+  // Rendering our web page i.e. Demo.ejs
+  // and passing title variable through it
+  res.render("home", {
+    title: "GeeksNotes API",
+  });
 });
 
 /* API Routers */
