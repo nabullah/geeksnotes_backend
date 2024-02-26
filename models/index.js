@@ -56,4 +56,12 @@ db.UploadFiles.hasMany(db.LikesFiles, { foreignKey: "fileId", as: "likes" });
 db.LikesFiles.belongsTo(db.UploadFiles, { foreignKey: "fileId" });
 db.UploadFiles.hasOne(db.ViewsFiles, { foreignKey: "fileId", as: "views" });
 
+db.UserRole.findAll()
+	.then((userRoles) => {
+		console.log("Testing Database:", JSON.stringify(userRoles));
+	})
+	.catch((error) => {
+		console.error("Error fetching user roles:", error);
+	});
+
 module.exports = db;
