@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		{
 			sequelize,
-			modelName: "OTP",
+			modelName: "otps",
 		}
 	);
 	return OTP;
