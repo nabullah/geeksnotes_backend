@@ -5,7 +5,7 @@ const path = require("path");
 const Sequelize = require("sequelize");
 const process = require("process");
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || "development";
+const env = process.env.NODE_ENV || "production";
 const config = require(__dirname + "/../config/config.json")[env];
 const db = {};
 
@@ -47,5 +47,21 @@ db.User.hasOne(db.AcademicDetails, {
 
 db.User.belongsTo(db.UserRole, { foreignKey: "userRoleId", as: "role" });
 db.UploadFiles.hasOne(db.User, { foreignKey: "id", sourceKey: "userId", as: "user" });
+
+db.OTP = require("./otp")(sequelize, Sequelize);
+db.LikesFiles = require("./likes_file")(sequelize, Sequelize);
+db.ViewsFiles = require("./views_file")(sequelize, Sequelize);
+
+db.UploadFiles.hasMany(db.LikesFiles, { foreignKey: "fileId", as: "likes" });
+db.LikesFiles.belongsTo(db.UploadFiles, { foreignKey: "fileId" });
+db.UploadFiles.hasOne(db.ViewsFiles, { foreignKey: "fileId", as: "views" });
+
+db.UserRole.findAll()
+	.then((userRoles) => {
+		console.log("Testing Database:", JSON.stringify(userRoles));
+	})
+	.catch((error) => {
+		console.error("Error fetching user roles:", error);
+	});
 
 module.exports = db;

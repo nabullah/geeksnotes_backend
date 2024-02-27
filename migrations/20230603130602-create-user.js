@@ -27,7 +27,7 @@ module.exports = {
 			},
 			dob: {
 				type: Sequelize.STRING,
-				allowNull: false,
+				allowNull: true,
 			},
 			status: {
 				type: Sequelize.STRING,
@@ -59,6 +59,11 @@ module.exports = {
 				allowNull: false,
 				type: Sequelize.DATE,
 			},
+			isVerified: {
+				type: Sequelize.BOOLEAN,
+				allowNull: false,
+				defaultValue: false,
+			}
 		});
 	},
 	async down(queryInterface, Sequelize) {

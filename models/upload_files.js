@@ -16,15 +16,18 @@ module.exports = (sequelize, DataTypes) => {
 			filePath: DataTypes.STRING,
 			userId: DataTypes.INTEGER,
 			fileName: DataTypes.STRING,
+			fileSize: DataTypes.STRING,
 			topic: DataTypes.STRING,
 			subTopic: DataTypes.STRING,
 			description: DataTypes.STRING,
+			tags: DataTypes.STRING,
 			audienceRolesIds: DataTypes.JSON,
 			fileType: DataTypes.STRING,
 			isPrivate: DataTypes.BOOLEAN,
 		},
 		{
 			sequelize,
+			paranoid: true,
 			modelName: "upload_files",
 		}
 	);

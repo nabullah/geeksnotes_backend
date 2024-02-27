@@ -6,6 +6,7 @@ const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT || 8000;
 const bodyParser = require("body-parser");
+const path = require("path");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -19,11 +20,27 @@ app.listen(PORT, () => {
 	swaggerDocs(app, 3000);
 });
 
+// Views
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
+
+app.get("/", function (req, res) {
+  // Rendering our web page i.e. Demo.ejs
+  // and passing title variable through it
+  res.render("home", {
+    title: "GeeksNotes API",
+  });
+});
+
 /* API Routers */
 const userRouter = require("./routes/user.js");
 const uploadFilesRouter = require("./routes/upload_files.js");
+const otpRouter = require("./routes/otp.js");
+const notesRouter = require("./routes/notes.js");
 
 app.use("/api/user", userRouter);
 app.use("/api/upload", uploadFilesRouter);
+app.use("/api", otpRouter);
+app.use("/api/notes", notesRouter);
 
 module.exports = app;

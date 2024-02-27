@@ -18,6 +18,9 @@ module.exports = {
 			fileName: {
 				type: Sequelize.STRING,
 			},
+			fileSize: {
+				type: Sequelize.STRING,
+			},
 			fileType: {
 				type: Sequelize.STRING,
 			},
@@ -38,6 +41,10 @@ module.exports = {
 			description: {
 				type: Sequelize.STRING,
 			},
+			tags: {
+				type: Sequelize.STRING,
+				allowNull: false,
+			},
 			createdAt: {
 				allowNull: false,
 				type: Sequelize.DATE,
@@ -46,6 +53,10 @@ module.exports = {
 				allowNull: false,
 				type: Sequelize.DATE,
 			},
+			deletedAt: {
+				allowNull: true,
+				type: Sequelize.DATE,
+			}
 		});
 	},
 	async down(queryInterface, Sequelize) {
