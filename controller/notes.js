@@ -112,12 +112,16 @@ const NotesController = {
 	getFilesWithUserId: async (req, res) => {
 		try {
 			const userId = req.userId;
-			const filesList = await UploadFiles.findAll({ where: { userId: userId } });
-			if (filesList) {
-				const encryptedFiles = CryptoJS.AES.encrypt(JSON.stringify(filesList), process.env.SECRET_KEY).toString();
-				return res.status(200).json({ status: true, message: "Files found successfully.", data: encryptedFiles });
-			} else {
-				return res.status(404).json({ status: false, message: "Files not found.", data: [] });
+			if(userId) {
+				const filesList = await UploadFiles.findAll({ where: { userId: userId } });
+				if (filesList) {
+					const encryptedFiles = CryptoJS.AES.encrypt(JSON.stringify(filesList), process.env.SECRET_KEY).toString();
+					return res.status(200).json({ status: true, message: "Files found successfully.", data: encryptedFiles });
+				} else {
+					return res.status(404).json({ status: false, message: "Files not found.", data: [] });
+				}
+			}else {
+				return res.status(404).json({ status: false, message: "User not found. Please login with correct user", data: [] });
 			}
 		} catch (error) {
 			return res.status(500).json({

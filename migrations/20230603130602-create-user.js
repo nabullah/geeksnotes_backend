@@ -33,6 +33,7 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: false,
 				enum: ["active", "blocked"],
+				defaultValue: 'active'
 			},
 			userRoleId: {
 				type: Sequelize.INTEGER,
