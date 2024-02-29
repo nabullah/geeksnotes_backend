@@ -52,6 +52,8 @@ Notes.get("/getFilesWithUserId", authCheck.jwtToken, NotesController.getFilesWit
  *     tags:
  *     - Notes
  *     summary: Get Notes details.
+ *     security:
+ *       - JWT: []
  *     parameters:
  *       - in: query
  *         name: id
