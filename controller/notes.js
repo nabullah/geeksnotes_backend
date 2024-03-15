@@ -112,7 +112,7 @@ const NotesController = {
 	getFilesWithUserId: async (req, res) => {
 		try {
 			const userId = req.userId;
-			if(userId) {
+			if (userId) {
 				const filesList = await UploadFiles.findAll({ where: { userId: userId } });
 				if (filesList) {
 					const encryptedFiles = CryptoJS.AES.encrypt(JSON.stringify(filesList), process.env.SECRET_KEY).toString();
@@ -120,7 +120,7 @@ const NotesController = {
 				} else {
 					return res.status(404).json({ status: false, message: "Files not found.", data: [] });
 				}
-			}else {
+			} else {
 				return res.status(404).json({ status: false, message: "User not found. Please login with correct user", data: [] });
 			}
 		} catch (error) {
@@ -168,7 +168,7 @@ const NotesController = {
 						],
 					],
 				},
-				order: db.sequelize.literal("id DESC"),
+				order: [["id", "DESC"]],
 			});
 			if (!files) {
 				return res.status(500).json({ status: false, message: "Could not get the files. Please try again." });
@@ -189,7 +189,7 @@ const NotesController = {
 		try {
 			if (req.query.id) {
 				const affectedRows = await UploadFiles.destroy({ where: { id: req.query.id } });
-				console.log(">>>>.",affectedRows);
+				console.log(">>>>.", affectedRows);
 				if (affectedRows) {
 					const file2 = await UploadFiles.findOne({ where: { id: req.query.id } });
 					return res.status(200).json({ status: true, message: "File deleted successfully.", data: file2 });
@@ -209,7 +209,7 @@ const NotesController = {
 		try {
 			if (req.query.id) {
 				const affectedRows = await UploadFiles.restore({ where: { id: req.query.id } });
-				console.log(">>>>.",affectedRows);
+				console.log(">>>>.", affectedRows);
 				if (affectedRows) {
 					const file2 = await UploadFiles.findOne({ where: { id: req.query.id } });
 					return res.status(200).json({ status: true, message: "File restored successfully.", data: file2 });

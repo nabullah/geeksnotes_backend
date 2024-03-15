@@ -5,7 +5,7 @@ const path = require("path");
 const Sequelize = require("sequelize");
 const process = require("process");
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || "production";
+const env = process.env.NODE_ENV || "development";
 const config = require(__dirname + "/../config/config.json")[env];
 const db = {};
 
@@ -58,10 +58,11 @@ db.UploadFiles.hasOne(db.ViewsFiles, { foreignKey: "fileId", as: "views" });
 
 db.UserRole.findAll()
 	.then((userRoles) => {
-		console.log("Testing Database:", JSON.stringify(userRoles));
+		// console.log("Testing Database:", JSON.stringify(userRoles.slice(0, 3)));
 	})
 	.catch((error) => {
 		console.error("Error fetching user roles:", error);
 	});
 
+db.Notifications = require("./notifications")(sequelize, Sequelize);
 module.exports = db;

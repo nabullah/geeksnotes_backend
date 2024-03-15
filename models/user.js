@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
 			academicsDetailId: DataTypes.NUMBER,
 			dob: { type: DataTypes.STRING, allowNull: true },
 			permission: DataTypes.STRING,
+			fcmToken: DataTypes.STRING,
 			isVerified: DataTypes.BOOLEAN,
 		},
 		{

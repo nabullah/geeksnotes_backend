@@ -26,8 +26,8 @@ const multerFilter = (req, file, cb) => {
 	}
 };
 
-const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
-
+// const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+const upload = multer({ dest: "uploads" });
 /**
  * @openapi
  * '/api/upload/uploadFilesSingle':
@@ -83,7 +83,5 @@ const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
  *                   type: number
  */
 uploadFiles.post("/uploadFilesSingle", authCheck.jwtToken, upload.single("file"), UploadFilesController.uploadSingleFile);
-
-
 
 module.exports = uploadFiles;
