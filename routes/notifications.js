@@ -48,4 +48,18 @@ const NotificationController = require("../controller/notifications");
  *                  
  */
 Notifications.get("/getNotifications", authCheck.jwtToken, NotificationController.getNotifications);
+
+/**
+ * @openapi
+ * '/api/notifications/getNotificationsCount':
+ *  get:
+ *     tags:
+ *     - Notifications
+ *     summary: Get the count of Notifications for a user.
+ *     security:
+ *       - JWT: []
+ */
+Notifications.get("/getNotificationsCount", authCheck.jwtToken, NotificationController.getNotificationCount);
+Notifications.get("/markNotificationRead", authCheck.jwtToken, NotificationController.markNotificationRead);
+
 module.exports = Notifications;

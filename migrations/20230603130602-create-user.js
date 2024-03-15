@@ -52,6 +52,9 @@ module.exports = {
 				type: Sequelize.STRING,
 				default: "user",
 			},
+			fcmToken: {
+				type: Sequelize.STRING,
+			},
 			createdAt: {
 				allowNull: false,
 				type: Sequelize.DATE,

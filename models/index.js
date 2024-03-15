@@ -58,7 +58,7 @@ db.UploadFiles.hasOne(db.ViewsFiles, { foreignKey: "fileId", as: "views" });
 
 db.UserRole.findAll()
 	.then((userRoles) => {
-		console.log("Testing Database:", JSON.stringify(userRoles.slice(0, 3)));
+		// console.log("Testing Database:", JSON.stringify(userRoles.slice(0, 3)));
 	})
 	.catch((error) => {
 		console.error("Error fetching user roles:", error);

@@ -153,6 +153,7 @@ const user_controller = {
 						return res.status(200).json({ message: "Please check your password.", status: false });
 					} else {
 						/* API for User Authentication*/
+						await User.update({ fcmToken: req.body.fcmToken }, { where: { id: userResult.id } });
 						userResult.password = undefined;
 						data = userResult;
 						let token = jwt.sign(data.toJSON(), SECRET_KEY, { expiresIn: "24h" });

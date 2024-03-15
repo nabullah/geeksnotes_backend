@@ -6,7 +6,9 @@ const { UploadFiles } = require("../../models");
 const CryptoJS = require("crypto-js");
 const db = require("../../models/index");
 const Notifications = require("../../models/").Notifications;
-
+const uploadToServer = require("../../util/clever-cloud-s3");
+const SEND_NOTIFICATION = require("../../firebase/notifications/firebase-notification");
+const NOTIFICATION_TYPE = require("../../firebase/notifications/notificationTypes");
 const upload_files = {
 	uploadSingleFile: async (req, res) => {
 		try {
@@ -15,7 +17,10 @@ const upload_files = {
 					if (req.body.topic && req.body.subTopic && req.body.description) {
 						if (req.body.audienceRolesIds) {
 							const file = req.file;
-							// console.log(">>>>>>>>>>" , file)
+							// console.log(">>>>>file>>>>>", file);
+							// uploadToServer.uploadFile(file, function (data) {
+							// 	console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", data);
+							// });
 							const uploadFiles = await UploadFiles.create({
 								filePath: file.path.split("\\").slice(1).join("/"),
 								fileName: file.originalname,
@@ -32,18 +37,18 @@ const upload_files = {
 							if (!uploadFiles) {
 								return res.status(500).json({ status: false, message: "Your file could not be uploaded. Please try again." });
 							} else {
-								const createNotifications = await Notifications.create({
+								const createNotifications = Notifications.create({
 									fileId: uploadFiles.id,
 									userId: req.userId,
 									isRead: false,
 									fromUserId: req.userId,
 									type: "uploadFile",
 									notificationDescription: "Your file has been successfully published.",
-									notificationType: 'Upload File',
+									notificationType: "Upload File",
 								});
-								console.log("createNotifications", createNotifications);
+								const notificationsDetails = { fileName: uploadFiles.fileName };
+								SEND_NOTIFICATION.sendNotification(req.userId, notificationsDetails, NOTIFICATION_TYPE.FILE_UPLOAD);
 								const encryptedFiles = CryptoJS.AES.encrypt(JSON.stringify(uploadFiles), process.env.SECRET_KEY).toString();
-								console.log(uploadFiles);
 								return res.status(200).json({ status: true, message: "File uploaded successfully.", data: encryptedFiles });
 							}
 						} else {
