@@ -9,7 +9,7 @@ const bodyParser = require("body-parser");
 const path = require("path");
 
 var corsOptions = {
-	origin: ["http://localhost:4200", "http://localhost:4500"],
+	origin: ["http://localhost:4200", "http://localhost:4500", '*'],
 	optionsSuccessStatus: 200,
 };
 app.use(express.json());
