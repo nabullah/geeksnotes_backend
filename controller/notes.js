@@ -9,6 +9,9 @@ const CryptoJS = require("crypto-js");
 const db = require("../models/index");
 const Notes = require("../routes/notes");
 
+const defaultPage = 1;
+const defaultLimit = 10;
+
 const NotesController = {
 	likeFile: async (req, res) => {
 		try {
@@ -113,9 +116,20 @@ const NotesController = {
 		try {
 			const userId = req.userId;
 			if (userId) {
-				const filesList = await UploadFiles.findAll({ where: { userId: userId } });
-				if (filesList) {
-					const encryptedFiles = CryptoJS.AES.encrypt(JSON.stringify(filesList), process.env.SECRET_KEY).toString();
+				const page = parseInt(req.query.page) || defaultPage;
+				const limit = parseInt(req.query.limit) || defaultLimit;
+				const offset = (page - 1) * limit;
+
+				const totalCount = await UploadFiles.count({ where: { userId: req.userId } });
+				const totalPages = Math.ceil(totalCount / limit);
+
+				const fileList = await UploadFiles.findAll({ where: { userId: userId }, limit, offset, order: [["createdAt", "DESC"]] });
+				const data = {
+					fileList,
+					pagination: { totalItems: totalCount, totalPages, currentPage: page },
+				};
+				if (fileList) {
+					const encryptedFiles = CryptoJS.AES.encrypt(JSON.stringify(data), process.env.SECRET_KEY).toString();
 					return res.status(200).json({ status: true, message: "Files found successfully.", data: encryptedFiles });
 				} else {
 					return res.status(404).json({ status: false, message: "Files not found.", data: [] });
