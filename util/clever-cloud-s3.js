@@ -26,6 +26,9 @@ const uploadCleverCloudS3 = {
 				console.log("Error uploading file >>>> :", err);
 			} else {
 				console.log("File uploaded successfully. File location:", file.Location);
+				// uploadCleverCloudS3.getSignedUrl(fileName, callback).then((data) => {
+				// 	callback(data);
+				// });
 				callback(file.Location);
 			}
 		});
@@ -34,9 +37,9 @@ const uploadCleverCloudS3 = {
 	getSignedUrl: async function (fileName, callback) {
 		const s3 = new SDK.S3({ endpoint: ENDPOINT });
 		s3.getSignedUrl("getObject", { Bucket: BUCKET, Key: "uploads" + fileName }, function (err, url) {
+			if (url) callback(url);
 			if (err) {
 			}
-			if (url) callback(url);
 		});
 	},
 };

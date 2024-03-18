@@ -7,14 +7,15 @@ async function getFcmTokenById(userId) {
 		const gettingFcmToken = await User.findOne({ where: { id: userId } });
 		let deviceToken = gettingFcmToken.fcmToken;
 		if (deviceToken) return deviceToken;
-		else return error("Device Token not found");
+		else return console.error("Device Token not found");
 	} catch (error) {
-		error("Error in getting fcm token", error);
+		console.error("Error in getting fcm token", error);
 	}
 }
 
 async function sendNotification(userId, messageData, type) {
 	let token = await getFcmTokenById(userId);
+	if (!token) return;
 	const message = {
 		notification: notificationType.getNotificationType(messageData, type),
 		token: token,
