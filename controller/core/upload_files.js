@@ -16,7 +16,7 @@ const upload_files = {
 				if (req.file) {
 					if (req.body.topic && req.body.subTopic && req.body.description) {
 						if (req.body.audienceRolesIds) {
-							await uploadToServer.uploadFile(req.file, async (data) => {
+							uploadToServer.uploadFile(req.file, async (data) => {
 								if (data) {
 									const filesUploaded = await UploadFiles.create({
 										filePath: data,

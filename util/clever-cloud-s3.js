@@ -26,9 +26,6 @@ const uploadCleverCloudS3 = {
 				console.log("Error uploading file >>>> :", err);
 			} else {
 				console.log("File uploaded successfully. File location:", file.Location);
-				// uploadCleverCloudS3.getSignedUrl(fileName, callback).then((data) => {
-				// 	callback(data);
-				// });
 				callback(file.Location);
 			}
 		});
