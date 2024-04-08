@@ -56,13 +56,7 @@ db.UploadFiles.hasMany(db.LikesFiles, { foreignKey: "fileId", as: "likes" });
 db.LikesFiles.belongsTo(db.UploadFiles, { foreignKey: "fileId" });
 db.UploadFiles.hasOne(db.ViewsFiles, { foreignKey: "fileId", as: "views" });
 
-db.UserRole.findAll()
-	.then((userRoles) => {
-		// console.log("Testing Database:", JSON.stringify(userRoles.slice(0, 3)));
-	})
-	.catch((error) => {
-		console.error("Error fetching user roles:", error);
-	});
-
 db.Notifications = require("./notifications")(sequelize, Sequelize);
+db.FilesThumbnails = require("./files_thumbnails")(sequelize, Sequelize);
+
 module.exports = db;
