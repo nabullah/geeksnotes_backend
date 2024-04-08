@@ -7,12 +7,12 @@ const UploadFilesController = require("../controller/core/upload_files");
 // Upload Files
 const multerStorage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		cb(null, "public/notes");
+		cb(null, "uploads/cache-s3/");
 	},
-	filename: (req, file, cb) => {
-		let ext = file.originalname.substring(file.originalname.lastIndexOf("."), file.originalname.length);
-		cb(null, `notes-${file.fieldname}-${Date.now()}${ext}`);
-	},
+	// filename: (req, file, cb) => {
+	// 	let ext = file.originalname.substring(file.originalname.lastIndexOf("."), file.originalname.length);
+	// 	cb(null, `notes-${file.fieldname}-${Date.now()}${ext}`);
+	// },
 });
 
 // Multer Filter
@@ -27,7 +27,8 @@ const multerFilter = (req, file, cb) => {
 };
 
 // const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
-const upload = multer({ dest: "uploads" });
+const upload = multer({ storage: multerStorage, });
+// const upload = multer({ dest: "uploads" });
 /**
  * @openapi
  * '/api/upload/uploadFilesSingle':
