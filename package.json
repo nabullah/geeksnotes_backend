@@ -17,6 +17,10 @@
 		"url": "https://github.com/nabullah/geeksnotes_backend/issues"
 	},
 	"homepage": "https://github.com/nabullah/geeksnotes_backend#readme",
+	"engines": {
+		"node": "^14.0.0 || ^16.0.0 || >=18.0.0",
+		"npm": ">=6.0.0"
+	},
 	"dependencies": {
 		"@sendgrid/mail": "^8.1.0",
 		"aws-sdk": "^2.1570.0",
