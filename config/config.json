@@ -2,10 +2,10 @@
 	"development": {
 		"username": "root",
 		"password": "",
-		"database": "notes_db_geeks",
+		"database": "geeks_notes_db",
 		"host": "127.0.0.1",
 		"dialect": "mysql",
-		"port": 3308
+		"port": 3306
 	},
 	"test": {
 		"username": "root",

@@ -10,23 +10,34 @@ SDK.config.update({
 });
 
 const uploadCleverCloudS3 = {
-	uploadFile: async function (file,) {
+	uploadFile: async function (file) {
 		return new Promise((resolve, reject) => {
 			const s3 = new SDK.S3({ endpoint: ENDPOINT });
 			const fileName = file.originalname;
+			const filePath = "uploads/cache-s3/" + file.filename;
 			const bucketParams = {
 				Bucket: BUCKET,
 				Key: fileName,
 				ACL: "public-read",
-				Body: fs.createReadStream("uploads/cache-s3/" + file.filename),
+				Body: fs.createReadStream(filePath),
 				ContentType: file.mimetype,
 			};
+			
 			// Upload the file to S3
 			s3.upload(bucketParams, (err, uploadedFile) => {
 				if (err) {
 					console.log("Error uploading file >>>> :", err);
 					reject(err);
 				} else {
+					fs.unlink(filePath, (unlinkErr) => {
+						if (unlinkErr) {
+							console.log("Error deleting file from local filesystem:", unlinkErr);
+							resolve(uploadedFile.Location);
+						} else {
+							console.log("File deleted from local filesystem.");
+							resolve(uploadedFile.Location);
+						}
+					});
 					console.log("File uploaded successfully. File location:", uploadedFile.Location);
 					resolve(uploadedFile.Location);
 				}

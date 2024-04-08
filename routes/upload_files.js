@@ -27,8 +27,7 @@ const multerFilter = (req, file, cb) => {
 };
 
 // const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
-const upload = multer({ storage: multerStorage, });
-// const upload = multer({ dest: "uploads" });
+const upload = multer({ storage: multerStorage });
 /**
  * @openapi
  * '/api/upload/uploadFilesSingle':

@@ -57,4 +57,6 @@ db.LikesFiles.belongsTo(db.UploadFiles, { foreignKey: "fileId" });
 db.UploadFiles.hasOne(db.ViewsFiles, { foreignKey: "fileId", as: "views" });
 
 db.Notifications = require("./notifications")(sequelize, Sequelize);
+db.FilesThumbnails = require("./files_thumbnails")(sequelize, Sequelize);
+
 module.exports = db;
