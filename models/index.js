@@ -5,7 +5,7 @@ const path = require("path");
 const Sequelize = require("sequelize");
 const process = require("process");
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || "production";
+const env = process.env.NODE_ENV;
 const config = require(__dirname + "/../config/config.json")[env];
 const db = {};
 
@@ -58,5 +58,7 @@ db.UploadFiles.hasOne(db.ViewsFiles, { foreignKey: "fileId", as: "views" });
 
 db.Notifications = require("./notifications")(sequelize, Sequelize);
 db.FilesThumbnails = require("./files_thumbnails")(sequelize, Sequelize);
+
+db.UploadFiles.hasOne(db.FilesThumbnails, { foreignKey: "fileId", as: "thumbnails" });
 
 module.exports = db;

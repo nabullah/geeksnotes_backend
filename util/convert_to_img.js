@@ -45,7 +45,8 @@ const convertPDF = {
 				resolve(thumbnail);
 			} catch (error) {
 				console.error("Conversion error:", error);
-				reject(error);
+				// reject(error);
+				resolve(null);
 			}
 		});
 	},

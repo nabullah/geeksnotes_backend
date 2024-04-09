@@ -5,6 +5,7 @@ const LikesFiles = require("../models").LikesFiles;
 
 const UserRole = require("../models/").UserRole;
 const UploadFiles = require("../models").UploadFiles;
+const Thumbnails = require("../models").FilesThumbnails;
 const CryptoJS = require("crypto-js");
 const db = require("../models/index");
 const Notes = require("../routes/notes");
@@ -65,36 +66,41 @@ const NotesController = {
 			const files = await UploadFiles.findAll({
 				where: { isPrivate: false },
 				include: [
+					// {
+					// 	model: User,
+					// 	attributes: ["id", "fullName", "status", "userRoleId", "profession"],
+					// 	as: "user",
+					// 	include: [
+					// 		{
+					// 			model: UserRole,
+					// 			attributes: ["id", "roleType", "color"],
+					// 			as: "role",
+					// 		},
+					// 	],
+					// },
+					// {
+					// 	model: ViewsFiles,
+					// 	attributes: ["fileId", "views"],
+					// 	as: "views",
+					// },
 					{
-						model: User,
-						attributes: ["id", "fullName", "status", "userRoleId", "profession"],
-						as: "user",
-						include: [
-							{
-								model: UserRole,
-								attributes: ["id", "roleType", "color"],
-								as: "role",
-							},
-						],
-					},
-					{
-						model: ViewsFiles,
-						attributes: ["fileId", "views"],
-						as: "views",
+						model: Thumbnails,
+						attributes: ["id", "thumbnailPath", "fileId"],
+						as: "thumbnails",
 					},
 				],
-				attributes: {
-					include: [
-						[
-							db.sequelize.literal(`(
-								SELECT COUNT(*)
-								FROM likes_files AS likes
-								WHERE
-								likes.fileId = upload_files.id)`),
-							"likes",
-						],
-					],
-				},
+				// attributes: {
+				// 	include: [
+				// 		[
+				// 			db.sequelize.literal(`(
+				// 				SELECT COUNT(*)
+				// 				FROM likes_files AS likes
+				// 				WHERE
+				// 				likes.fileId = upload_files.id)`),
+				// 			"likes",
+				// 		],
+				// 	],
+				// },
 				order: db.sequelize.literal("id DESC"),
 			});
 			if (!files) {
@@ -199,6 +205,7 @@ const NotesController = {
 		}
 	},
 
+	/** Soft Delete Note */
 	deleteNoteById: async (req, res) => {
 		try {
 			if (req.query.id) {
@@ -219,6 +226,8 @@ const NotesController = {
 			});
 		}
 	},
+
+	/**  */
 	restoreDeleteNoteById: async (req, res) => {
 		try {
 			if (req.query.id) {

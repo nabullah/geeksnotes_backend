@@ -16,7 +16,7 @@ const upload_files = {
 						if (req.body.audienceRolesIds) {
 							const data = await uploadToServer.uploadFile(req.file);
 							const thumbnailLink = await pdfConverter.toJPEG(data);
-							if (data && thumbnailLink) {
+							if (data) {
 								const filesUploaded = await UploadFiles.create({
 									filePath: data,
 									fileName: req.file.originalname,
@@ -34,7 +34,11 @@ const upload_files = {
 								if (!filesUploaded) {
 									return res.status(500).json({ status: false, message: "Your file could not be uploaded. Please try again." });
 								} else {
-									const saveThumbnail = await FilesThumbnails.create({ thumbnailPath: thumbnailLink, fileId: filesUploaded.id });
+
+									let saveThumbnail = null;
+									if (thumbnailLink) {
+										saveThumbnail = await FilesThumbnails.create({ thumbnailPath: thumbnailLink, fileId: filesUploaded.id });
+									}
 									Notifications.create({
 										fileId: filesUploaded.id,
 										userId: req.userId,
