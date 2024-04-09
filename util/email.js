@@ -1,7 +1,5 @@
 const sgMail = require("@sendgrid/mail");
-const SENDGRID_API_KEY = "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";
-
-sgMail.setApiKey(SENDGRID_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 module.exports = {
 	sendOTPEmail: async (data) => {
