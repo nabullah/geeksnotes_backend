@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const SECRET_KEY = "6hEVETCGQJ5xmVMA235467uyjhtrety5yrt$tgw54teg#$%##%g#$#$6e9GasasdasdXjeWDEE5AHiaOaXXFcVNiC548=34rgsfdfwer23rwfasdA@#$%gfsdf#%$t%trfsdda";
 const User = require("../models").User;
 
 module.exports = {
@@ -7,7 +6,7 @@ module.exports = {
 		try {
 			let token1 = req.headers["authorization"];
 			let token2 = token1.split(" ")[1];
-			let token = jwt.verify(token2, SECRET_KEY);
+			let token = jwt.verify(token2, process.env.SECRET_KEY);
 
 			if (token) {
 				let userData = await User.findOne({ where: { id: token.id } });
