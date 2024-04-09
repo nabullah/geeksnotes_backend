@@ -4,7 +4,6 @@ const UserRole = require("../../models").UserRole;
 const OTP = require("../../models").OTP;
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const SECRET_KEY = "6hEVETCGQJ5xmVMA235467uyjhtrety5yrt$tgw54teg#$%##%g#$#$6e9GasasdasdXjeWDEE5AHiaOaXXFcVNiC548=34rgsfdfwer23rwfasdA@#$%gfsdf#%$t%trfsdda";
 const db = require("../../models/index");
 const randomColors = require("../../util/functions");
 const otpGenerator = require("../../util/OTP");
@@ -156,7 +155,7 @@ const user_controller = {
 						await User.update({ fcmToken: req.body.fcmToken }, { where: { id: userResult.id } });
 						userResult.password = undefined;
 						data = userResult;
-						let token = jwt.sign(data.toJSON(), SECRET_KEY, { expiresIn: "24h" });
+						let token = jwt.sign(data.toJSON(), process.env.SECRET_KEY, { expiresIn: "24h" });
 						const expirationTime = new Date(jwt.decode(token).exp * 1000);
 						return res.status(200).json({ message: "You have successfully logged in to your account.", data: { token: token, user: data, expireIn: expirationTime }, status: true });
 					}
