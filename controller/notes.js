@@ -276,9 +276,16 @@ const NotesController = {
 				const limit = parseInt(req.query.limit) || defaultLimit;
 				const offset = (page - 1) * limit;
 
-				const getLikedFiles = await db.sequelize.query(`SELECT * FROM upload_files WHERE id IN (SELECT fileId FROM likes_files WHERE userId = ${userId}) LIMIT ${limit} OFFSET ${offset}`, {
-					type: db.sequelize.QueryTypes.SELECT,
-				});
+				const getLikedFiles = await db.sequelize.query(
+					`SELECT upload_files.*, JSON_OBJECT('id', files_thumbnails.id, 'thumbnailPath', files_thumbnails.thumbnailPath, 'fileId', files_thumbnails.fileId) AS thumbnails 
+					 FROM upload_files 
+					 LEFT JOIN files_thumbnails ON upload_files.id = files_thumbnails.fileId
+					 WHERE upload_files.id IN (SELECT fileId FROM likes_files WHERE userId = ${userId})
+					 LIMIT ${limit} OFFSET ${offset}`,
+					{
+						type: db.sequelize.QueryTypes.SELECT,
+					}
+				);
 
 				const countQuery = await db.sequelize.query(`SELECT COUNT(*) AS totalCount FROM upload_files WHERE id IN (SELECT fileId FROM likes_files WHERE userId = ${userId})`, {
 					type: db.sequelize.QueryTypes.SELECT,
