@@ -38,11 +38,13 @@ const uploadFilesRouter = require("./routes/upload_files.js");
 const otpRouter = require("./routes/otp.js");
 const notesRouter = require("./routes/notes.js");
 const NotificationsRouter = require("./routes/notifications.js");
+const ReviewsRouter = require("./routes/reviews.js");
 
 app.use("/api/user", userRouter);
 app.use("/api/upload", uploadFilesRouter);
 app.use("/api", otpRouter);
 app.use("/api/notes", notesRouter);
 app.use("/api/notifications", NotificationsRouter);
+app.use("/api/reviews", ReviewsRouter);
 
 module.exports = app;

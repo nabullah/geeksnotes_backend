@@ -10,7 +10,7 @@ async function getPdfFromURL(url) {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("Error fetching PDF:", error);
+		// console.error("\x1b[33m%s\x1b[0m","Error fetching PDF:", error);
 		throw error;
 	}
 }
@@ -29,7 +29,7 @@ const convertPDF = {
 				height: 800,
 			};
 
-			const doc = await getPdfFromURL(path);
+			const doc = await getPdfFromURL("https://" + path);
 			const convert = fromBuffer(doc, options);
 
 			try {
@@ -41,10 +41,10 @@ const convertPDF = {
 				};
 
 				const thumbnail = await uploadToServer.uploadFile(convertedFile);
-				console.log("Thumbnail uploaded successfully:", thumbnail);
+				console.log("\x1b[36m%s\x1b[0m", "Thumbnail uploaded successfully:", thumbnail);
 				resolve(thumbnail);
 			} catch (error) {
-				console.error("Conversion error:", error);
+				console.error("\x1b[33m%s\x1b[0m", "Conversion error:", error);
 				// reject(error);
 				resolve(null);
 			}

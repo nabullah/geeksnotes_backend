@@ -34,31 +34,43 @@ Object.keys(db).forEach((modelName) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-db.User = require("./user")(sequelize, Sequelize);
+
 db.AcademicDetails = require("./academicdetails")(sequelize, Sequelize);
 db.UserRole = require("./userroles")(sequelize, Sequelize);
+db.User = require("./user")(sequelize, Sequelize);
+db.OTP = require("./otp")(sequelize, Sequelize);
+db.ViewsFiles = require("./views_file")(sequelize, Sequelize);
 db.UploadFiles = require("./upload_files")(sequelize, Sequelize);
+db.LikesFiles = require("./likes_file")(sequelize, Sequelize);
+db.Notifications = require("./notifications")(sequelize, Sequelize);
+db.FilesThumbnails = require("./files_thumbnails")(sequelize, Sequelize);
+db.Reviews = require("./reviews")(sequelize, Sequelize);
+db.Ratings = require("./ratings")(sequelize, Sequelize);
 
+
+
+db.User.belongsTo(db.UserRole, { foreignKey: "userRoleId", as: "role" });
 db.User.hasOne(db.AcademicDetails, {
 	as: "academicDetails",
 	foreignKey: "id",
 	sourceKey: "academicsDetailId",
 });
 
-db.User.belongsTo(db.UserRole, { foreignKey: "userRoleId", as: "role" });
 db.UploadFiles.hasOne(db.User, { foreignKey: "id", sourceKey: "userId", as: "user" });
-
-db.OTP = require("./otp")(sequelize, Sequelize);
-db.LikesFiles = require("./likes_file")(sequelize, Sequelize);
-db.ViewsFiles = require("./views_file")(sequelize, Sequelize);
-
 db.UploadFiles.hasMany(db.LikesFiles, { foreignKey: "fileId", as: "likes" });
-db.LikesFiles.belongsTo(db.UploadFiles, { foreignKey: "fileId" });
 db.UploadFiles.hasOne(db.ViewsFiles, { foreignKey: "fileId", as: "views" });
-
-db.Notifications = require("./notifications")(sequelize, Sequelize);
-db.FilesThumbnails = require("./files_thumbnails")(sequelize, Sequelize);
-
 db.UploadFiles.hasOne(db.FilesThumbnails, { foreignKey: "fileId", as: "thumbnails" });
+
+db.LikesFiles.belongsTo(db.UploadFiles, { foreignKey: "fileId" });
+
+db.Reviews.hasOne(db.Ratings, { foreignKey: "reviewId", as: "ratings" });
+db.Reviews.hasOne(db.User, { sourceKey: "userId", foreignKey: "id", as: "user" });
+
+
+
+db.User.findAll().then((users) => {
+	console.log("\x1b[36m%s\x1b[0m", "Connected To database >>>");
+});
+
 
 module.exports = db;

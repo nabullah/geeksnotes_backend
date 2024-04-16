@@ -6,6 +6,7 @@ const NotesController = require("../controller/notes");
 
 Notes.get("/like", authCheck.jwtToken, NotesController.likeFile);
 Notes.get("/view", authCheck.jwtToken, NotesController.viewFile);
+Notes.get("/like/isAlreadyLiked", authCheck.jwtToken, NotesController.checkIfAlreadyLiked);
 
 /**
  * @openapi
@@ -100,5 +101,24 @@ Notes.get("/deleteNoteById", NotesController.deleteNoteById);
  *         description: Success
  */
 Notes.get("/restoreDeleteNoteById", NotesController.restoreDeleteNoteById);
+
+/**
+ * @openapi
+ * '/api/notes/getLibraryNotes':
+ *  get:
+ *     tags:
+ *     - Notes
+ *     summary: Get the list of all notes that user has liked
+ *     content:
+ *       schema:
+ *         type: object
+ *         properties:
+ *           token:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Success
+ */
+Notes.get("/getLibraryNotes", authCheck.jwtToken, NotesController.getLibraryNotes);
 
 module.exports = Notes;

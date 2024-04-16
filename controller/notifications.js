@@ -1,6 +1,4 @@
-const User = require("../models").User;
-const LikesFiles = require("../models").LikesFiles;
-const UploadFiles = require("../models").UploadFiles;
+
 const Notifications = require("../models").Notifications;
 
 const defaultPage = 1;

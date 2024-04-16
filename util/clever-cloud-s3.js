@@ -22,23 +22,23 @@ const uploadCleverCloudS3 = {
 				Body: fs.createReadStream(filePath),
 				ContentType: file.mimetype,
 			};
-			
+
 			// Upload the file to S3
 			s3.upload(bucketParams, (err, uploadedFile) => {
 				if (err) {
-					console.log("Error uploading file >>>> :", err);
+					console.log("\x1b[33m%s\x1b[0m", "Error uploading file >>>> :", err);
 					reject(err);
 				} else {
 					fs.unlink(filePath, (unlinkErr) => {
 						if (unlinkErr) {
-							console.log("Error deleting file from local filesystem:", unlinkErr);
+							console.log("\x1b[33m%s\x1b[0m", "Error deleting file from local filesystem:", unlinkErr);
 							resolve(uploadedFile.Location);
 						} else {
-							console.log("File deleted from local filesystem.");
+							console.log("\x1b[36m%s\x1b[0m", "File deleted from local filesystem.");
 							resolve(uploadedFile.Location);
 						}
 					});
-					console.log("File uploaded successfully. File location:", uploadedFile.Location);
+					console.log("\x1b[36m%s\x1b[0m","File uploaded successfully. File location:", uploadedFile.Location);
 					resolve(uploadedFile.Location);
 				}
 			});
