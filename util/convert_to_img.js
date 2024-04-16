@@ -28,8 +28,13 @@ const convertPDF = {
 				width: 600,
 				height: 800,
 			};
-
-			const doc = await getPdfFromURL("https://" + path);
+			let doc;
+			let path2 = path.includes("https");
+			if (path2) {
+				doc = await getPdfFromURL(path);
+			} else {
+				doc = await getPdfFromURL("https://" + path);
+			}
 			const convert = fromBuffer(doc, options);
 
 			try {
