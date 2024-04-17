@@ -1,6 +1,9 @@
 const { Reviews, Ratings, User } = require("../models");
 const db = require("../models/index");
 
+const defaultPage = 1;
+const defaultLimit = 10;
+
 const ReviewsController = {
 	createNewReview: async (req, res) => {
 		const t = await db.sequelize.transaction();
@@ -141,18 +144,30 @@ const ReviewsController = {
 		try {
 			const { fileId } = req.query;
 			if (fileId) {
+				const page = parseInt(req.query.page) || defaultPage;
+				const limit = parseInt(req.query.limit) || defaultLimit;
+				const offset = (page - 1) * limit;
+
+				const totalCount = await Reviews.count({ where: { fileId: fileId } });
+				const totalPages = Math.ceil(totalCount / limit);
+
 				const reviewList = await Reviews.findAll({
 					where: { fileId: fileId },
 					include: [
 						{ model: Ratings, as: "ratings", attributes: ["rating", "reviewId"] },
 						{ model: User, as: "user", attributes: ["fullName", "color"] },
 					],
+					limit, offset,
 					order: db.sequelize.literal("id DESC"),
 				});
+				const data = {
+					data: reviewList,
+					pagination: { totalItems: totalCount, totalPages, currentPage: page },
+				};
 				if (!reviewList) {
 					return res.status(500).json({ status: false, message: "We couldn't get your review. Please try again.", data: [] });
 				}
-				return res.status(200).json({ status: true, message: "Review List", data: reviewList });
+				return res.status(200).json({ status: true, message: "Review List", data: data });
 			} else {
 				return res.status(500).json({ status: false, message: "FileId is required.", data: [] });
 			}
