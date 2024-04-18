@@ -179,6 +179,46 @@ const ReviewsController = {
 			});
 		}
 	},
+
+	deleteReview: async (req, res) => {
+		const t = await db.sequelize.transaction();
+		try {
+			const { reviewId } = req.query;
+			if (reviewId) {
+				const deleteReview = await Reviews.destroy({ where: { id: reviewId } }, { transaction: t });
+				if (!deleteReview) {
+					await t.rollback();
+					return res.status(500).json({
+						status: false,
+						message: "We couldn't delete your review. Please try again.",
+						data: [],
+					});
+				}
+				const deleteRating = await Ratings.destroy({ where: { reviewId: reviewId } }, { transaction: t });
+				if (!deleteRating) {
+					await t.rollback();
+					return res.status(500).json({
+						status: false,
+						message: "We couldn't delete your review. Please try again.",
+						data: [],
+					});
+				}
+				t.commit();
+				return res.status(200).json({
+					status: true,
+					message: "Review Deleted Successfully.",
+					data: [],
+				});
+			}
+		} catch (error) {
+			await t.rollback();
+			return res.status(500).json({
+				status: false,
+				message: "We're experiencing technical difficulties at the moment. Please try again later or contact our support team for assistance.",
+				result: error.message,
+			});
+		}
+	}
 };
 
 module.exports = ReviewsController;

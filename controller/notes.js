@@ -1,11 +1,5 @@
-const ViewsFiles = require("../models").ViewsFiles;
+const { ViewsFiles, User, LikesFiles, UserRole, UploadFiles, FilesThumbnails, Ratings } = require("../models");
 
-const User = require("../models").User;
-const LikesFiles = require("../models").LikesFiles;
-
-const UserRole = require("../models/").UserRole;
-const UploadFiles = require("../models").UploadFiles;
-const Thumbnails = require("../models").FilesThumbnails;
 const CryptoJS = require("crypto-js");
 const db = require("../models/index");
 const Notes = require("../routes/notes");
@@ -100,7 +94,7 @@ const NotesController = {
 					// 	as: "views",
 					// },
 					{
-						model: Thumbnails,
+						model: FilesThumbnails,
 						attributes: ["id", "thumbnailPath", "fileId"],
 						as: "thumbnails",
 					},
@@ -171,6 +165,7 @@ const NotesController = {
 	getNoteById: async (req, res) => {
 		try {
 			const { id } = req.query;
+			const totalRatings = await Ratings.count({ where: { fileId: id } });
 			const files = await UploadFiles.findOne({
 				where: { id: id },
 				include: [
@@ -192,7 +187,7 @@ const NotesController = {
 						as: "views",
 					},
 					{
-						model: Thumbnails,
+						model: FilesThumbnails,
 						attributes: ["id", "thumbnailPath", "fileId"],
 						as: "thumbnails",
 					},
@@ -201,16 +196,17 @@ const NotesController = {
 					include: [
 						[
 							db.sequelize.literal(`(
-								SELECT COUNT(*)
-								FROM likes_files AS likes
-								WHERE
-								likes.fileId = upload_files.id)`),
-							"likes",
+								SELECT COUNT(*) FROM likes_files AS likes WHERE likes.fileId = upload_files.id)`), "likes",
+						],
+						[
+							db.sequelize.literal(`(
+								SELECT ROUND(AVG(rating), 1) FROM ratings AS rating WHERE rating.fileId = upload_files.id)`), "averageRating",
 						],
 					],
 				},
 				order: [["id", "DESC"]],
 			});
+
 			if (!files) {
 				return res.status(500).json({ status: false, message: "Could not get the files. Please try again." });
 			} else {
@@ -315,6 +311,10 @@ const NotesController = {
 			});
 		}
 	},
+
+	searchNote: async (req, res) => {
+
+	}
 };
 
 module.exports = NotesController;

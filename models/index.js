@@ -58,6 +58,7 @@ db.User.hasOne(db.AcademicDetails, {
 
 db.UploadFiles.hasOne(db.User, { foreignKey: "id", sourceKey: "userId", as: "user" });
 db.UploadFiles.hasMany(db.LikesFiles, { foreignKey: "fileId", as: "likes" });
+db.UploadFiles.hasMany(db.Ratings, { foreignKey: "fileId" });
 db.UploadFiles.hasOne(db.ViewsFiles, { foreignKey: "fileId", as: "views" });
 db.UploadFiles.hasOne(db.FilesThumbnails, { foreignKey: "fileId", as: "thumbnails" });
 
@@ -65,6 +66,8 @@ db.LikesFiles.belongsTo(db.UploadFiles, { foreignKey: "fileId" });
 
 db.Reviews.hasOne(db.Ratings, { foreignKey: "reviewId", as: "ratings" });
 db.Reviews.hasOne(db.User, { sourceKey: "userId", foreignKey: "id", as: "user" });
+
+db.Ratings.belongsTo(db.UploadFiles, { foreignKey: "fileId" });
 
 
 
